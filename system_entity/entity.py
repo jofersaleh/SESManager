@@ -91,15 +91,15 @@ class StructuralEntity(Entity):
     def attribute_to_list(self): # TODO modify serialization
         to_list = []
         attributes = self.get_attribute_list()
-        for attribute in attributes:
+        for attr in attributes:
             json_obj = OrderedDict()
-            json_obj["type"] = AttributeType.resolve_type_from_enum(attribute.get_type())
-            json_obj["entities"] = attribute.retrive_entities()
-            json_obj["input_ports"] = attribute.retrive_input_ports()
-            json_obj["output_ports"] = attribute.retrive_output_ports()
-            json_obj["external_input"] = attribute.retrive_external_input_coupling()
-            json_obj["external_output"] = attribute.retrive_external_output_coupling()
-            json_obj["internal"] = attribute.retrive_internal_coupling  ()
+            json_obj["type"] = AttributeType.resolve_type_from_enum(attr.get_type())
+            json_obj["entities"] = attr.retrive_entities()
+            json_obj["input_ports"] = attr.retrive_input_ports()
+            json_obj["output_ports"] = attr.retrive_output_ports()
+            json_obj["external_input"] = attr.retrive_external_input_coupling()
+            json_obj["external_output"] = attr.retrive_external_output_coupling()
+            json_obj["internal"] = attr.retrive_internal_coupling  ()
             to_list.append(json_obj)
         return to_list
     pass
