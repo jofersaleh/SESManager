@@ -2,7 +2,8 @@ import pytest
 import os
 
 from system_manager.es_manager import EntityManager
-from system_entity.attribute import *
+from system_entity.behavior_attribute import *
+from system_entity.structure_attribute import *
 
 esm = EntityManager()
 

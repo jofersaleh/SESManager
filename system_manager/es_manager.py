@@ -1,6 +1,6 @@
-import sys
 from system_entity.entity import *
-from system_entity.attribute import *
+from system_entity.behavior_attribute import *
+from system_entity.structure_attribute import *
 
 import json
 import os
