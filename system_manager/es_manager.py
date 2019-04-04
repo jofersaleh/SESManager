@@ -1,6 +1,6 @@
-import sys
 from system_entity.entity import *
-from system_entity.attribute import *
+from system_entity.behavior_attribute import *
+from system_entity.structure_attribute import *
 
 import json
 import os
@@ -22,37 +22,24 @@ class EntityManager(object):
     def create_entity_structure(_name="None"):
         return Entity(_name)
 
-    def create_empty_entity_structure(self, _type="", _name=""):
-        enum = AttributeType.resolve_type_from_str(_type)
-        if enum == AttributeType.BEHAVIOR:
-            return BehavioralEntity(_name)
-        elif enum == AttributeType.STRUCTURAL:
-            return StructuralEntity(_name)
-        else:
-            return None
-
     def create_system(self, entity: Entity):
         self.root_entity = entity
 
     def export_system_entity_structure(self, path=".", name="ses.json"):
         entity_data = OrderedDict()
         entity_data["name"] = self.root_entity.get_name()
-        #entity_data["type"] = self.root_entity.get_type()
         entity_data["core_attribute"] = self.root_entity.serialize_core_attribute()
 
         f = open(os.path.join(path, name), "w")
         f.write(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
         f.close()
-        #print(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
 
     def export_system_entity_structure_recursively(self, path="."):
         entity_data = OrderedDict()
         entity_data["name"] = self.root_entity.get_name()
         entity_data["core_attribute"] = self.root_entity.attribute_to_list()
-        #print(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
 
     def import_system_entity_structure(self, path=".", name="ses.json"):
-
         json_data = open(os.path.join(path, name)).read()
         data = json.loads(json_data)
         name = data["name"]
@@ -63,5 +50,8 @@ class EntityManager(object):
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
             self.root_entity.set_core_attribute(attr)
-        elif core["type"] == "BEHAVIORAL":
+        elif core["type"] == "BEHAVIOR":
+            attr = ModelBehaviorAttribute()
+            attr.deserialize(core)
+            self.root_entity.set_core_attribute(attr)
             pass
