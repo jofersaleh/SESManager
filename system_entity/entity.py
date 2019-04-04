@@ -42,6 +42,7 @@ class Entity(object):
             elif enum == AttributeType.STRUCTURAL:
                 self.core_attribute = ModelStructuralAttribute()
                 self.core_attribute.deserialize(json)
+                # TODO: add optional attributes handling
                 pass
             else:
                 pass
