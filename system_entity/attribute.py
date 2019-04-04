@@ -1,4 +1,6 @@
 from system_entity.definition import AttributeType
+from collections import OrderedDict
+
 
 class Attribute(object):
     def __init__(self, type):
@@ -10,6 +12,7 @@ class Attribute(object):
     def __str__(self):
         return "\"type\":" + self.attribute_type + ","
 
+
 class ModelAttribute(Attribute):
     def __init__(self, _type):
         super(ModelAttribute, self).__init__(_type)
@@ -20,13 +23,16 @@ class ModelAttribute(Attribute):
 
     def insert_input_port(self, port):
         self.input_ports.append(port)
+
     def retrieve_input_ports(self):
         return self.input_ports
 
     def insert_output_port(self, port):
         self.output_ports.append(port)
+
     def retrieve_output_ports(self):
         return self.output_ports
+
 
 class ModelBehaviorAttribute(ModelAttribute):
     def __init__(self):
@@ -60,8 +66,8 @@ class ModelBehaviorAttribute(ModelAttribute):
     def retrieve_external_transition(self, pre_state):
         return self.external_transition_map_state[pre_state]
 
-    def retrieve_external_transition(self, pre_state, event):
-        return self.external_transition_map_tuple((pre_state, event))
+    def retrieve_next_external_state(self, pre_state, event):
+        return self.external_transition_map_tuple[(pre_state, event)]
 
     def find_external_transition(self, pre_state):
         return pre_state in self.external_transition_map_state
@@ -76,11 +82,12 @@ class ModelBehaviorAttribute(ModelAttribute):
     def retrieve_internal_transition(self, pre_state):
         return self.internal_transition_map_state[pre_state]
 
-    def retrieve_internal_transition(self, pre_state, event):
-        return self.internal_transition_map_tuple((pre_state, event))
+    def retrieve_next_internal_state(self, pre_state, event):
+        return self.internal_transition_map_tuple[(pre_state, event)]
 
     def find_internal_transition(self, pre_state):
         return pre_state in self.internal_transition_map_state
+
 
 class ModelStructuralAttribute(ModelAttribute):
     def __init__(self):
@@ -133,6 +140,17 @@ class ModelStructuralAttribute(ModelAttribute):
     def retrieve_internal_coupling(self):
         return self.internal_coupling_map_entity
 
+    def serialize(self):
+        json_obj = OrderedDict()
+        json_obj["type"] = "STRUCTURAL"
+        json_obj["entities"] = self.retrieve_entities()
+        json_obj["input_ports"] = self.retrieve_input_ports()
+        json_obj["output_ports"] = self.retrieve_output_ports()
+        json_obj["external_input"] = self.retrieve_external_input_coupling()
+        json_obj["external_output"] = self.retrieve_external_output_coupling()
+        json_obj["internal"] = self.retrieve_internal_coupling()
+        return json_obj
+
     def deserialize(self, json):
         # Handle Entities
         for entity in json["entities"]:
@@ -158,8 +176,4 @@ class ModelStructuralAttribute(ModelAttribute):
         for k, v in json["internal"].items():
             for t in v:
                 self.insert_coupling((k, t[0]), tuple(t[1]))
-
-        #json["external_input"] = self.core_attribute.retrieve_external_input_coupling()
-        #json["external_output"] = self.core_attribute.retrieve_external_output_coupling()
-        #json["internal"] = self.core_attribute.retrieve_internal_coupling()
         pass
