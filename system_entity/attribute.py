@@ -44,11 +44,11 @@ class ModelBehaviorAttribute(ModelAttribute):
         self.internal_transition_map_state = {}
         #self.time_advance_map = {}
 
-    def insert_state(self, name, deadline):
+    def insert_state(self, name, deadline="inf"):
         # TODO: Exception Handling
         # TA < 0
         # Duplicated State
-        self.states[name] = deadline
+        self.states[name] = float(deadline)
 
     def retrieve_states(self):
         return self.states
@@ -88,6 +88,39 @@ class ModelBehaviorAttribute(ModelAttribute):
     def find_internal_transition(self, pre_state):
         return pre_state in self.internal_transition_map_state
 
+    def serialize(self):
+        json_obj = OrderedDict()
+        json_obj["type"] = "BEHAVIOR"
+        json_obj["states"] = self.states
+        json_obj["input_ports"] = self.retrieve_input_ports()
+        json_obj["output_ports"] = self.retrieve_output_ports()
+        json_obj["external_trans"] = self.external_transition_map_state
+        json_obj["internal_trans"] = self.internal_transition_map_state
+        return json_obj
+
+    def deserialize(self, json):
+        # Handle Entities
+        for k, v in json["states"].items():
+            self.insert_state(k, v)
+
+        # Handle In ports
+        for port in json["input_ports"]:
+            self.insert_input_port(port)
+
+        # Handle out ports
+        for port in json["output_ports"]:
+            self.insert_output_port(port)
+
+        # Handle External Transition
+        for k, v in json["external_trans"].items():
+            for ns in v:
+                self.insert_external_transition(k, ns[0], ns[1])
+
+        # Handle Internal Transition
+        for k, v in json["internal_trans"].items():
+            for ns in v:
+                self.insert_internal_transition(k, ns[0], ns[1])
+
 
 class ModelStructuralAttribute(ModelAttribute):
     def __init__(self):
@@ -105,9 +138,6 @@ class ModelStructuralAttribute(ModelAttribute):
 
     def retrieve_entities(self):
         return self.entity_list
-
-#    def find_entity(self, entity):
-#        return name in self.states
 
     def insert_coupling(self, src, dst):
         src_entity, src_port = src
