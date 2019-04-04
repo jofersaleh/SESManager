@@ -1,6 +1,7 @@
 from enum import Enum
 
-### TODO-01 Define Error Type or Exception cbchoi
+# TODO-01 Define Error Type or Exception cbchoi
+
 
 class AttributeType(Enum):
     BEHAVIOR = 0
@@ -14,7 +15,6 @@ class AttributeType(Enum):
         elif "STRUCTURAL" == name.upper():
             return AttributeType.STRUCTURAL
         else:
-            #print(name)
             return AttributeType.UNKNOWN_TYPE
 
     @staticmethod
