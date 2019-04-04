@@ -1,5 +1,6 @@
 from system_entity.definition import AttributeType
 
+
 class Attribute(object):
     def __init__(self, _type):
         self.attribute_type = AttributeType.resolve_type_from_str(_type)
@@ -9,6 +10,12 @@ class Attribute(object):
 
     def __str__(self):
         return "\"type\":" + self.attribute_type + ","
+
+    def serialize(self):
+        pass
+
+    def deserialize(self, json):
+        pass
 
 
 class ModelAttribute(Attribute):
@@ -30,4 +37,10 @@ class ModelAttribute(Attribute):
 
     def retrieve_output_ports(self):
         return self.output_ports
+
+
+class AlternativeAttribute(Attribute):
+    def __init__(self, _type):
+        super(Attribute, self).__init__("ALTERNATIVE")
+        self.alternative_type = _type
 
