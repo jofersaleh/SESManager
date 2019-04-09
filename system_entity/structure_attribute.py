@@ -12,9 +12,9 @@ class ModelStructuralAttribute(ModelAttribute):
         self.external_output_map = {}
         self.priority_list = []
 
-    def insert_entity(self, entity):
+    def insert_entity(self, entity, arity='1'):
         # TODO: Exception Handling
-        self.entity_list.append(entity)
+        self.entity_list.append((entity, arity))
 
     def retrieve_entities(self):
         return self.entity_list
@@ -64,7 +64,7 @@ class ModelStructuralAttribute(ModelAttribute):
     def deserialize(self, json):
         # Handle Entities
         for entity in json["entities"]:
-            self.insert_entity(entity)
+            self.insert_entity(entity[0], entity[1])
         # Handle In ports
         for port in json["input_ports"]:
             self.insert_input_port(port)
