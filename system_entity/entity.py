@@ -1,4 +1,5 @@
-from system_entity.attribute import *
+# from system_entity.attribute import *
+from system_entity.structure_attribute import *
 
 
 class Entity(object):
