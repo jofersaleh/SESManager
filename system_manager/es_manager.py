@@ -5,22 +5,35 @@ from system_entity.structure_attribute import *
 import json
 import os
 from collections import OrderedDict
+from collections import defaultdict
+from os import listdir
+from os.path import isfile, join
 
 
 class EntityManager(object):
-    def __init__(self):
-        self.entity_path = ""
-        self.root_entity = None
-
-    def set_entity_db_path(self, path):
-        self.entity_path = path
-
-    def retrieve_entity_db_path(self):
-        return self.entity_path
 
     @staticmethod
     def create_entity_structure(_name="None"):
         return Entity(_name)
+
+    def __init__(self, path="."):
+        self.entity_path = path
+        self.root_entity = None
+        self.model_db = {} #defaultdict(list)
+        self.file_db_init()
+
+    def file_db_init(self):
+        db_list = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
+        for _file in db_list:
+            self.model_db[_file[:-4]] = os.path.join(os.path.abspath(self.entity_path), _file)
+        print(self.model_db)
+
+    def set_entity_db_path(self, path):
+        self.entity_path = path
+        self.file_db_init()
+
+    def retrieve_entity_db_path(self):
+        return self.entity_path
 
     def create_system(self, entity: Entity):
         self.root_entity = entity
