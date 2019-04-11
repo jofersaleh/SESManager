@@ -1,7 +1,7 @@
 from system_manager.es_manager import EntityManager
 from system_entity.structure_attribute import *
 
-esm = EntityManager()
+esm = EntityManager("./sample/db")
 
 entity = esm.create_entity_structure()
 entity.set_name("System")
@@ -22,6 +22,6 @@ msa.insert_coupling(("en1", "out"), ("", "out"))
 entity.set_core_attribute(msa)
 esm.create_system(entity)
 
-esm.export_system_entity_structure("./sample/")
-esm.import_system_entity_structure("./sample/")
-esm.export_system_entity_structure("./sample/", "ses2.json")
+esm.export_system_entity_structure("./sample/db")
+esm.import_system_entity_structure("./sample/db")
+esm.export_system_entity_structure("./sample/db", "ses2.json")
