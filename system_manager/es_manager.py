@@ -1,11 +1,10 @@
 from system_entity.entity import *
-from system_entity.behavior_attribute import *
+# from model_base.behavior_model import *
 from system_entity.structure_attribute import *
 
 import json
 import os
 from collections import OrderedDict
-from collections import defaultdict
 from os import listdir
 from os.path import isfile, join
 
@@ -19,12 +18,13 @@ class EntityManager(object):
     def __init__(self, path="."):
         self.entity_path = path
         self.root_entity = None
+        self.entity_db = []
         self.model_db = {} #defaultdict(list)
         self.file_db_init()
 
     def file_db_init(self):
-        db_list = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
-        for _file in db_list:
+        self.entity_db = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
+        for _file in self.entity_db:
             self.model_db[_file[:-4]] = os.path.join(os.path.abspath(self.entity_path), _file)
         print(self.model_db)
 
@@ -63,8 +63,18 @@ class EntityManager(object):
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
             self.root_entity.set_core_attribute(attr)
-        elif core["type"] == "BEHAVIOR":
-            attr = ModelBehaviorAttribute()
-            attr.deserialize(core)
-            self.root_entity.set_core_attribute(attr)
+        # elif core["type"] == "BEHAVIOR":
+        #     attr = ModelBehaviorAttribute()
+        #     attr.deserialize(core)
+        #     self.root_entity.set_core_attribute(attr)
+            pass
+
+    def select_alternatives(self):
+        pass
+
+    def interactive_pruning(self):
+        if self.root_entity :
+            print("Root entity is not selected")
+            pass
+        else:
             pass

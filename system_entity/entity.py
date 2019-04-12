@@ -48,3 +48,9 @@ class Entity(object):
             else:
                 pass
         pass
+
+    def check_alternatives(self):
+        if self.core_attribute.get_type() == AttributeType.STRUCTURAL:
+            return True
+        else:
+            return False
