@@ -1,15 +1,45 @@
-from system_entity.attribute import *
+# from system_entity.attribute import *
 from collections import OrderedDict
 
 
-class ModelBehaviorAttribute(ModelAttribute):
-    def __init__(self):
-        super(ModelBehaviorAttribute, self).__init__("BEHAVIOR")
+class BehaviorModel(object):
+    def serialize(self):
+        pass
+
+    def deserialize(self, json):
+        pass
+
+    def __init__(self, _name=""):
+        # super(ModelBehaviorAttribute, self).__init__("BEHAVIOR")
+        self.name = _name
         self.states = {}
+        # Input Ports Declaration
+        self.input_ports = []
+        # Output Ports Declaration
+        self.output_ports = []
+
         self.external_transition_map_tuple = {}
         self.external_transition_map_state = {}
         self.internal_transition_map_tuple = {}
         self.internal_transition_map_state = {}
+
+    def set_name(self, _name):
+        self.name = _name
+
+    def get_name(self):
+        return self.name
+
+    def insert_input_port(self, port):
+        self.input_ports.append(port)
+
+    def retrieve_input_ports(self):
+        return self.input_ports
+
+    def insert_output_port(self, port):
+        self.output_ports.append(port)
+
+    def retrieve_output_ports(self):
+        return self.output_ports
 
     def insert_state(self, name, deadline="inf"):
         # TODO: Exception Handling
@@ -57,7 +87,7 @@ class ModelBehaviorAttribute(ModelAttribute):
 
     def serialize(self):
         json_obj = OrderedDict()
-        json_obj["type"] = "BEHAVIOR"
+        json_obj["name"] = self.name
         json_obj["states"] = self.states
         json_obj["input_ports"] = self.retrieve_input_ports()
         json_obj["output_ports"] = self.retrieve_output_ports()
@@ -66,7 +96,7 @@ class ModelBehaviorAttribute(ModelAttribute):
         return json_obj
 
     def deserialize(self, json):
-        # Handle Entities
+        self.name = json["name"]
         for k, v in json["states"].items():
             self.insert_state(k, v)
 
