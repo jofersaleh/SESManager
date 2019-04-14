@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 class ModelStructuralAttribute(ModelAttribute):
     def __init__(self):
-        super(ModelStructuralAttribute, self).__init__("STRUCTURAL")
+        super(ModelStructuralAttribute, self).__init__("ASPECT")
         self.entity_list = []
         self.external_input_map = {}
         self.internal_coupling_map_tuple = {}

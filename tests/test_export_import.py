@@ -2,7 +2,7 @@ import os
 
 from system_manager.es_manager import EntityManager
 from model_base.behavior_model import *
-from model_base.model_manager import *
+from model_base.modelmanager import *
 from system_entity.structure_attribute import *
 
 esm = EntityManager()
@@ -49,7 +49,7 @@ msa.insert_external_transition("move", "in2", "idle")
 
 msa.insert_internal_transition("move", "out1", "idle")
 
-mm = model_manager()
+mm = ModelManager()
 mm.export_model(msa, "./", "test.json")
 _model = mm.import_model("./", "test.json")
 mm.export_model(_model, "./", "answer.json")
