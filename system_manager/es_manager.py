@@ -110,11 +110,18 @@ class EntityManager(object):
         [print(fmt.format(k, v)) for k, v in self.model_db.items()]
 
     def interactive_pruning(self):
-        if self.root_entity:
+        self.list_up_entity()
+        selected = input("Select Entity:")
 
-            pass
+        if selected not in self.model_db:
+            print("[ERR] Entity Not Found")
         else:
-            pass
+            self.import_system_entity_structure(self.model_db[selected])
+            if self.root_entity:
+                print("!")
+                pass
+            else:
+                pass
 
     @staticmethod
     def crud_menu():
@@ -131,7 +138,12 @@ class EntityManager(object):
 
     def read_operation(self):
         self.list_up_entity()
-        # TODO implement
+        selected = input("Select Entity:")
+
+        if selected not in self.model_db:
+            print("[ERR] Entity Not Found")
+        else:
+            print(self)
         pass
 
     def update_operation(self):
