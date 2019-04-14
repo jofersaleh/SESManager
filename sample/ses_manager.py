@@ -16,7 +16,7 @@ msa.insert_input_port("in2")
 msa.insert_output_port("out1")
 msa.insert_output_port("out2")
 
-msa.insert_entity("en", "*")
+msa.insert_entity("en", "*", True)
 msa.insert_entity("en1", 2, True)
 msa.insert_coupling(("", "in1"), ("en", "in"))
 msa.insert_coupling(("en", "out"), ("en1", "in"))

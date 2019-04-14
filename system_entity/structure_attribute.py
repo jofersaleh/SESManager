@@ -16,6 +16,53 @@ class ModelStructuralAttribute(ModelAttribute):
         # TODO: Exception Handling
         self.entity_list.append([entity, arity, opt])
 
+    def remove_entity(self, entity):
+        # Check External Input Coupling
+        remove_list = []
+        for k, v in self.external_input_map.items():
+            for item in v:
+                if entity[0] == item[0]:
+                    remove_list.append(item)
+            for item in remove_list:
+                v.remove(item)
+
+        remove_list.clear()
+
+        # Check External Output Coupling
+        for k, v in self.external_output_map.items():
+            for item in v:
+                if entity[0] == item[0]:
+                    remove_list.append(item)
+
+            for item in remove_list:
+                v.remove(item)
+
+        # Check Internal Coupling - Source
+        if entity[0] in self.internal_coupling_map_tuple.items():
+            del(self.internal_coupling_map_tuple[entity[0]])
+            del(self.internal_coupling_map_entity[entity[0]])
+
+        remove_list.clear()
+        # Check Internal Coupling - Destination
+        for k, v in self.internal_coupling_map_tuple.items():
+            for item in v:
+                if entity[0] == item[0]:
+                    remove_list.append(item)
+
+            for item in remove_list:
+                v.remove(item)
+
+        remove_list.clear()
+        for k, v in self.internal_coupling_map_entity.items():
+            for item in v:
+                if entity[0] == item[1][0]:
+                    remove_list.append(item)
+
+            for item in remove_list:
+                v.remove(item)
+
+        self.entity_list.remove(entity)
+
     def retrieve_entities(self):
         return self.entity_list
 
@@ -40,6 +87,13 @@ class ModelStructuralAttribute(ModelAttribute):
             else:
                 self.internal_coupling_map_tuple[src] = [dst]
                 self.internal_coupling_map_entity[src_entity]=[(src_port, dst)]
+
+    def remove_coupling(self, _src, _dst):
+        src_entity, src_port = _src
+        dst_entity, dst_port = _dst
+
+        # TODO: Implement
+        pass
 
     def retrieve_external_input_coupling(self):
         return self.external_input_map
@@ -116,4 +170,5 @@ class ModelStructuralAttribute(ModelAttribute):
                     entity[1] = int(input("> Enter arity:"))
 
         if delete_entity is not None:
-            self.entity_list.remove(delete_entity)
+            self.remove_entity(delete_entity)
+
