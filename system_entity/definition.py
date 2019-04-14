@@ -4,30 +4,30 @@ from enum import Enum
 
 
 class AttributeType(Enum):
-    BEHAVIOR = 0
-    STRUCTURAL = 1
-    ALTERNATIVE = 2
+    # BEHAVIOR = 0
+    ASPECT = 1
+    MULTI_ASPECT = 2
     UNKNOWN_TYPE = -1
 
     @staticmethod
     def resolve_type_from_str(name):
-        if "BEHAVIOR" == name.upper():
-            return AttributeType.BEHAVIOR
-        elif "STRUCTURAL" == name.upper():
-            return AttributeType.STRUCTURAL
-        elif "ALTERNATIVE" == name.upper():
-            return AttributeType.ALTERNATIVE
+        # if "BEHAVIOR" == name.upper():
+        #    return AttributeType.BEHAVIOR
+        if "ASPECT" == name.upper():
+            return AttributeType.ASPECT
+        elif "MULTI_ASPECT" == name.upper():
+            return AttributeType.MULTI_ASPECT
         else:
             return AttributeType.UNKNOWN_TYPE
 
     @staticmethod
     def resolve_type_from_enum(enum):
-        if enum == AttributeType.BEHAVIOR:
-            return "BEHAVIOR"
-        elif enum == AttributeType.STRUCTURAL:
-            return "STRUCTURAL"
-        elif enum == AttributeType.ALTERNATIVE:
-            return "ALTERNATIVE"
+        # if enum == AttributeType.BEHAVIOR:
+        #    return "BEHAVIOR"
+        if enum == AttributeType.ASPECT:
+            return "ASPECT"
+        elif enum == AttributeType.MULTI_ASPECT:
+            return "MULTI_ASPECT"
         else:
             return "UNKNOWN"
 
@@ -43,9 +43,9 @@ class AlternativeType(Enum):
         if "BEHAVIOR" == name.upper():
             return AttributeType.BEHAVIOR
         elif "STRUCTURAL" == name.upper():
-            return AttributeType.STRUCTURAL
+            return AttributeType.ASPECT
         elif "ALTERNATIVE" == name.upper():
-            return AttributeType.ALTERNATIVE
+            return AttributeType.MULTI_ASPECT
         else:
             return AttributeType.UNKNOWN_TYPE
 
@@ -53,9 +53,9 @@ class AlternativeType(Enum):
     def resolve_type_from_enum(enum):
         if enum == AttributeType.BEHAVIOR:
             return "BEHAVIOR"
-        elif enum == AttributeType.STRUCTURAL:
+        elif enum == AttributeType.ASPECT:
             return "STRUCTURAL"
-        elif enum == AttributeType.ALTERNATIVE:
+        elif enum == AttributeType.MULTI_ASPECT:
             return "ALTERNATIVE"
         else:
             return "UNKNOWN"

@@ -40,7 +40,7 @@ class Entity(object):
             enum = AttributeType.resolve_type_from_str(json["type"])
             if enum == AttributeType.BEHAVIOR:
                 pass
-            elif enum == AttributeType.STRUCTURAL:
+            elif enum == AttributeType.ASPECT:
                 self.core_attribute = ModelStructuralAttribute()
                 self.core_attribute.deserialize(json)
                 # TODO: add optional attributes handling
@@ -50,7 +50,7 @@ class Entity(object):
         pass
 
     def check_alternatives(self):
-        if self.core_attribute.get_type() == AttributeType.STRUCTURAL:
+        if self.core_attribute.get_type() == AttributeType.ASPECT:
             return True
         else:
             return False
