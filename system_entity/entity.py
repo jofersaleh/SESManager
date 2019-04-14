@@ -1,5 +1,6 @@
-from system_entity.attribute import *
-
+# from system_entity.attribute import *
+from system_entity.structure_attribute import *
+import copy
 
 class Entity(object):
     def __init__(self, _name):
@@ -8,7 +9,16 @@ class Entity(object):
         self.attribute_list = []
 
     def __str__(self):
-        return self.entity_name
+        fmt = "{0: <10}{name: <10}\t{arity: <5}\t{opt: <5}"
+        _str = ""
+        _str += "Name: " + self.entity_name + "\n"
+        _str += fmt.format("Entities: ", name="Name", arity="Arity", opt="Optional") + "\n"
+        entities = self.core_attribute.retrieve_entities()
+
+        for idx, entity in enumerate(entities):
+            _str += "\t" + fmt.format(idx+1, name=entity[0], arity=entity[1], opt=entity[2]) + "\n"
+
+        return _str
 
     def set_name(self, name):
         self.entity_name = name
@@ -39,7 +49,7 @@ class Entity(object):
             enum = AttributeType.resolve_type_from_str(json["type"])
             if enum == AttributeType.BEHAVIOR:
                 pass
-            elif enum == AttributeType.STRUCTURAL:
+            elif enum == AttributeType.ASPECT:
                 self.core_attribute = ModelStructuralAttribute()
                 self.core_attribute.deserialize(json)
                 # TODO: add optional attributes handling
@@ -47,3 +57,12 @@ class Entity(object):
             else:
                 pass
         pass
+
+    def clone(self):
+        return copy.deepcopy(self)
+
+    def check_validity(self):
+        return self.core_attribute.check_validity()
+
+    def prune(self, _sub_entity):
+        self.core_attribute.prune(_sub_entity)

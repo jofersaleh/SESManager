@@ -1,8 +1,8 @@
-import pytest
 import os
 
 from system_manager.es_manager import EntityManager
-from system_entity.behavior_attribute import *
+from model_base.behavior_model import *
+from model_base.modelmanager import *
 from system_entity.structure_attribute import *
 
 esm = EntityManager()
@@ -26,13 +26,14 @@ msa.insert_coupling(("en1", "out"), ("", "out"))
 entity.set_core_attribute(msa)
 esm.create_system(entity)
 
-esm.export_system_entity_structure("./", "test_structure.json")
-esm.import_system_entity_structure("./", "test_structure.json")
-esm.export_system_entity_structure("./", "answer_structure.json")
+esm.export_system_entity_structure(entity, "./", "test_structure.json")
+esm.import_system_entity_structure(entity, "./", "test_structure.json")
+esm.export_system_entity_structure(entity, "./", "answer_structure.json")
 
-entity = esm.create_entity_structure()
-entity.set_name("A")
-msa = ModelBehaviorAttribute()
+
+#entity = esm.create_entity_structure()
+#entity.set_name("A")
+msa = BehaviorModel("A")
 
 msa.insert_state("Idle")
 msa.insert_state("move", 1)
@@ -48,11 +49,10 @@ msa.insert_external_transition("move", "in2", "idle")
 
 msa.insert_internal_transition("move", "out1", "idle")
 
-entity.set_core_attribute(msa)
-esm.create_system(entity)
-esm.export_system_entity_structure("./", "test_behavior.json")
-esm.import_system_entity_structure("./", "test_behavior.json")
-esm.export_system_entity_structure("./", "answer_behavior.json")
+mm = ModelManager()
+mm.export_model(msa, "./", "test.json")
+_model = mm.import_model("./", "test.json")
+mm.export_model(_model, "./", "answer.json")
 
 
 def test_structure():
@@ -76,8 +76,8 @@ def test_structure():
 
 
 def test_behavior():
-    f1 = open("./test_behavior.json", "r")
-    f2 = open("./answer_behavior.json", "r")
+    f1 = open("./test.json", "r")
+    f2 = open("./answer.json", "r")
 
     l1 = f1.readlines()
     l2 = f2.readlines()
@@ -91,5 +91,5 @@ def test_behavior():
     # Test termination
     f1.close()
     f2.close()
-    os.remove("test_behavior.json")
-    os.remove("answer_behavior.json")
+    os.remove("test.json")
+    os.remove("answer.json")
