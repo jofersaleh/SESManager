@@ -56,35 +56,31 @@ class EntityManager(object):
         json_data = open(os.path.join(path, name)).read()
         data = json.loads(json_data)
         name = data["name"]
-        self.root_entity = self.create_entity_structure(name)
+        entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
         if core["type"] == "STRUCTURAL":
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
-            self.root_entity.set_core_attribute(attr)
-        # elif core["type"] == "BEHAVIOR":
-        #     attr = ModelBehaviorAttribute()
-        #     attr.deserialize(core)
-        #     self.root_entity.set_core_attribute(attr)
-            pass
+            entity.set_core_attribute(attr)
+            return entity
+
+        return None
 
     def import_system_entity_structure(self, _path):
         json_data = open(_path).read()
         data = json.loads(json_data)
         name = data["name"]
-        self.root_entity = self.create_entity_structure(name)
+        entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
         if core["type"] == "STRUCTURAL":
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
-            self.root_entity.set_core_attribute(attr)
-        # elif core["type"] == "BEHAVIOR":
-        #     attr = ModelBehaviorAttribute()
-        #     attr.deserialize(core)
-        #     self.root_entity.set_core_attribute(attr)
-            pass
+            entity.set_core_attribute(attr)
+            return entity
+
+        return None
 
     def select_root_entity(self, _name):
         """
@@ -116,7 +112,7 @@ class EntityManager(object):
         if selected not in self.model_db:
             print("[ERR] Entity Not Found")
         else:
-            self.import_system_entity_structure(self.model_db[selected])
+            self.root_entity = self.import_system_entity_structure(self.model_db[selected])
             if self.root_entity:
                 print("!")
                 pass
@@ -143,7 +139,8 @@ class EntityManager(object):
         if selected not in self.model_db:
             print("[ERR] Entity Not Found")
         else:
-            print(self)
+            model = self.import_system_entity_structure(self.model_db[selected])
+            print(model)
         pass
 
     def update_operation(self):

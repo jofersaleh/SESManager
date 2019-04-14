@@ -9,15 +9,16 @@ class Entity(object):
         self.attribute_list = []
 
     def __str__(self):
+        fmt = "{0: <10}{name: <10}\t{arity: <5}\t{opt: <5}"
         _str = ""
         _str += "Name: " + self.entity_name + "\n"
-        _str += "Entities: "
+        _str += fmt.format("Entities: ", name="Name", arity="Arity", opt="Optional") + "\n"
         entities = self.core_attribute.retrieve_entities()
 
-        for entity in entities:
-            _str += "\t" + entity + "\n"
+        for idx, entity in enumerate(entities):
+            _str += "\t" + fmt.format(idx+1, name=entity[0], arity=entity[1], opt=entity[2]) + "\n"
 
-        return _str + "\n"
+        return _str
 
     def set_name(self, name):
         self.entity_name = name
