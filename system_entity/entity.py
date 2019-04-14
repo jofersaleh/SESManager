@@ -60,3 +60,9 @@ class Entity(object):
 
     def clone(self):
         return copy.deepcopy(self)
+
+    def check_validity(self):
+        return self.core_attribute.check_validity()
+
+    def prune(self, _sub_entity):
+        self.core_attribute.prune(_sub_entity)

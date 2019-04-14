@@ -39,12 +39,12 @@ class EntityManager(object):
         self.root_entity = entity
 
     @staticmethod
-    def export_system_entity_structure(_entity, path=".", name="ses.json"):
+    def export_system_entity_structure(_entity, _path=".", name="ses.json"):
         entity_data = OrderedDict()
         entity_data["name"] = _entity.get_name()
         entity_data["core_attribute"] = _entity.serialize_core_attribute()
 
-        f = open(os.path.join(path, name), "w")
+        f = open(os.path.join(_path, name), "w")
         f.write(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
         f.close()
 
@@ -114,11 +114,28 @@ class EntityManager(object):
             print("[ERR] Entity Not Found")
         else:
             self.root_entity = self.import_system_entity_structure(self.model_db[selected])
-            if self.root_entity:
-                print("!")
-                pass
-            else:
-                pass
+            pes = self.root_entity.clone()
+            pes.set_name("pruned_" + pes.get_name())
+
+            entity_list = pes.check_validity()
+            fmt = "{name: <10}\t{arity: <5}\t{opt: <5}"
+            while entity_list:
+                print("List of entities to pruning")
+                for entity in entity_list:
+                    print(fmt.format(name=entity[0], arity=entity[1], opt=entity[2]))
+                choice = input("> Select entity to prune: ")
+
+                if True in list(map(lambda x: x[0] == choice, entity_list)):
+                    pes.prune(choice)
+                else:
+                    print("[ERR] Entity {} not found".format(choice))
+                entity_list = pes.check_validity()
+            print(">>> Pruned Entity Structure <<< ")
+            print(pes)
+            print("Stored in pes_db")
+            pes_path = os.path.join(os.path.dirname(self.entity_path), "pes_db")
+
+            self.export_system_entity_structure(pes, pes_path, pes.get_name() + ".json")
 
     @staticmethod
     def crud_menu():
