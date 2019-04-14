@@ -38,10 +38,11 @@ class EntityManager(object):
     def create_system(self, entity: Entity):
         self.root_entity = entity
 
-    def export_system_entity_structure(self, path=".", name="ses.json"):
+    @staticmethod
+    def export_system_entity_structure(_entity, path=".", name="ses.json"):
         entity_data = OrderedDict()
-        entity_data["name"] = self.root_entity.get_name()
-        entity_data["core_attribute"] = self.root_entity.serialize_core_attribute()
+        entity_data["name"] = _entity.get_name()
+        entity_data["core_attribute"] = _entity.serialize_core_attribute()
 
         f = open(os.path.join(path, name), "w")
         f.write(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
