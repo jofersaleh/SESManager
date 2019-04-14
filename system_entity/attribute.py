@@ -1,4 +1,6 @@
 from system_entity.definition import AttributeType
+from collections import OrderedDict
+
 
 
 class Attribute(object):
