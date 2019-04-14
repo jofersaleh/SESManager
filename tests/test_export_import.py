@@ -26,9 +26,9 @@ msa.insert_coupling(("en1", "out"), ("", "out"))
 entity.set_core_attribute(msa)
 esm.create_system(entity)
 
-esm.export_system_entity_structure("./", "test_structure.json")
-esm.import_system_entity_structure("./", "test_structure.json")
-esm.export_system_entity_structure("./", "answer_structure.json")
+esm.export_system_entity_structure(entity, "./", "test_structure.json")
+esm.import_system_entity_structure(entity, "./", "test_structure.json")
+esm.export_system_entity_structure(entity, "./", "answer_structure.json")
 
 
 #entity = esm.create_entity_structure()
@@ -53,6 +53,7 @@ mm = ModelManager()
 mm.export_model(msa, "./", "test.json")
 _model = mm.import_model("./", "test.json")
 mm.export_model(_model, "./", "answer.json")
+
 
 def test_structure():
     f1 = open("./test_structure.json", "r")

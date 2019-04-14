@@ -25,7 +25,7 @@ msa.insert_coupling(("en1", "out"), ("", "out"))
 entity.set_core_attribute(msa)
 esm.create_system(entity)
 
-esm.export_system_entity_structure("./sample/ses_db")
+esm.export_system_entity_structure(entity, "./sample/ses_db")
 
 msa = BehaviorModel("en2")
 
