@@ -14,7 +14,7 @@ class ModelStructuralAttribute(ModelAttribute):
 
     def insert_entity(self, entity, arity='1', opt=False):
         # TODO: Exception Handling
-        self.entity_list.append((entity, arity, opt))
+        self.entity_list.append([entity, arity, opt])
 
     def retrieve_entities(self):
         return self.entity_list
@@ -86,4 +86,34 @@ class ModelStructuralAttribute(ModelAttribute):
         for k, v in json["internal"].items():
             for t in v:
                 self.insert_coupling((k, t[0]), tuple(t[1]))
-        pass
+
+    def check_validity(self):
+        result = []
+        for entity in self.entity_list:
+            print(entity)
+            if type(entity[1]) is not int:
+                result.append(entity)
+                continue
+            if entity[2]:
+                result.append(entity)
+
+        return result
+
+    def prune(self, _sub_entity):
+        delete_entity = None
+        for entity in self.entity_list:
+            if entity[0] == _sub_entity:
+                if entity[2]:
+                    print("> The sub-entity {0} is optional".format(entity[0]))
+                    choice = input("> Select(s), Remove(r)")
+                    if choice == 's':
+                        entity[2] = False
+                    else:
+                        delete_entity = entity
+                        break
+                if type(entity[1]) is str:
+                    print("> The arity of {0} is {1}".format(entity[0], entity[1]))
+                    entity[1] = int(input("> Enter arity:"))
+
+        if delete_entity is not None:
+            self.entity_list.remove(delete_entity)
