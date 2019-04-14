@@ -9,7 +9,15 @@ class Entity(object):
         self.attribute_list = []
 
     def __str__(self):
-        return self.entity_name
+        _str = ""
+        _str += "Name: " + self.entity_name + "\n"
+        _str += "Entities: "
+        entities = self.core_attribute.retrieve_entities()
+
+        for entity in entities:
+            _str += "\t" + entity + "\n"
+
+        return _str + "\n"
 
     def set_name(self, name):
         self.entity_name = name
