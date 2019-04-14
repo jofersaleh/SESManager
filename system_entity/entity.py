@@ -1,6 +1,6 @@
 # from system_entity.attribute import *
 from system_entity.structure_attribute import *
-
+import copy
 
 class Entity(object):
     def __init__(self, _name):
@@ -58,8 +58,5 @@ class Entity(object):
                 pass
         pass
 
-    def check_alternatives(self):
-        if self.core_attribute.get_type() == AttributeType.ASPECT:
-            return True
-        else:
-            return False
+    def clone(self):
+        return copy.deepcopy(self)
