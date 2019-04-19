@@ -7,26 +7,32 @@ from system_manager.system_manager import *
 esm = EntityManager("./sample/ses_db")
 
 entity = esm.create_entity_structure()
-entity.set_name("System")
+entity.set_name("Agent")
 
 msa = ModelStructuralAttribute()
-msa.insert_input_port("in1")
-msa.insert_input_port("in2")
+msa.insert_input_port("env")
+msa.insert_input_port("agent")
 
-msa.insert_output_port("out1")
-msa.insert_output_port("out2")
+msa.insert_output_port("env")
+msa.insert_output_port("agent")
 
-msa.insert_entity("en", "*", True)
-msa.insert_entity("en1", 2, True)
-msa.insert_coupling(("", "in1"), ("en", "in"))
-msa.insert_coupling(("en", "out"), ("en1", "in"))
-msa.insert_coupling(("en1", "out"), ("", "out"))
+msa.insert_entity("sensors", 1, False)
+msa.insert_entity("processor", 1, False)
+msa.insert_entity("actuators", 1, False)
+
+msa.insert_coupling(("", "env"), ("sensors", "env"))
+msa.insert_coupling(("", "agent"), ("sensors", "agent"))
+
+msa.insert_coupling(("sensors", "event"), ("process", "event"))
+msa.insert_coupling(("processor", "control"), ("actuators", "control"))
+
+msa.insert_coupling(("actuators", "out"), ("", "out"))
 
 entity.set_core_attribute(msa)
-esm.create_system(entity)
+# esm.create_system(entity)
 
 esm.export_system_entity_structure(entity, "./sample/ses_db")
-
+'''
 msa = BehaviorModel("en2")
 
 msa.insert_state("Idle")
@@ -47,6 +53,7 @@ mm = ModelManager("./sample/model_db")
 mm.export_model(msa, "en2.json")
 
 # esm.interactive_pruning()
-
+'''
 sm = SystemManager("./sample/ses_db", "./sample/model_db")
 sm.start()
+
