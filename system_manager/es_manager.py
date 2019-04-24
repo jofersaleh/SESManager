@@ -148,6 +148,39 @@ class EntityManager(object):
 
     def create_operation(self):
         # TODO implement
+        self.list_up_entity()
+        selected = input("Select Entity to create:")
+        if selected not in self.model_db:
+            print("[ERR] Entity Not Found")
+            pass
+
+        nmn = input("Type name of Entity:")
+        arti = int(input("Type number of arity"))
+        A = True
+        opt = 0
+        while A:
+            opt = input("is this entity optional? (y/n)")
+            if opt == "y":
+                opt = True
+                A = False
+            elif opt == "n":
+                opt = False
+                A = False
+            else:
+                print("Please type only y or n")
+        print(nmn, arti, opt)
+        crte_enti = [nmn, arti, opt]
+        json_data = open(self.model_db[selected]).read()
+        data = json.loads(json_data)
+
+        core = data["core_attribute"]
+        if core["type"] == "STRUCTURAL":
+            lst = core["entities"]
+            lst.append([crte_enti])
+        print(lst)
+
+        #print(self.model_db)
+        #print(nmn)
         pass
 
     def read_operation(self):
@@ -185,6 +218,7 @@ class EntityManager(object):
             selected = EntityManager.crud_menu()
 
             if selected == 1:
+                self.create_operation()
                 pass
             elif selected == 2:
                 self.read_operation()
