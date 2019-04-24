@@ -148,13 +148,55 @@ class EntityManager(object):
 
     def create_operation(self):
         # TODO implement
+
+        nm = input("Type name of Entity:")
+        #crte_enti = self.create_entity_structure(nm)
+        #lst = ModelStructuralAttribute()
+        #crte_enti.set_core_attribute(lst)
+        lst_enti = OrderedDict()
+        lst_enti["name"] = nm
+        lst_enti["core_attribute"] = {'type':'STRUCTURAL', "entities" : [], "input_ports" : [], "output_ports" : [],
+                                      "external_input" : {}, "external_output" : {}, "internal" : {}}
+
+
+
+        #jstring = json.dumps(lst_enti, indent="\t")
+        #print(jstring)
+        #print(self.entity_path+"."+nm+".json")
+        with open(self.entity_path+'\\'+nm+".json",'w') as make_file:
+            json.dump(lst_enti, make_file, indent= "\t")
+
+
+
+
+
+
+    def read_operation(self):
         self.list_up_entity()
-        selected = input("Select Entity to create:")
+        selected = input("Select Entity:")
+
+        if selected not in self.model_db:
+            print("[ERR] Entity Not Found")
+        else:
+            model = self.import_system_entity_structure(self.model_db[selected])
+            print(model)
+        pass
+
+    def update_operation(self):
+        # TODO implement
+
+        self.list_up_entity()
+        selected = input("Select Entity to update:")
         if selected not in self.model_db:
             print("[ERR] Entity Not Found")
             pass
+        model = self.import_system_entity_structure(self.model_db[selected])
+        print(model)
 
-        nmn = input("Type name of Entity:")
+        ###make menu to modify entities##
+
+        # crteate new entities
+        nmn = input("Type name of Entities:")
         arti = int(input("Type number of arity"))
         A = True
         opt = 0
@@ -169,7 +211,7 @@ class EntityManager(object):
             else:
                 print("Please type only y or n")
         print(nmn, arti, opt)
-        crte_enti = [nmn, arti, opt]
+
         json_data = open(self.model_db[selected]).read()
         data = json.loads(json_data)
 
@@ -177,26 +219,15 @@ class EntityManager(object):
         if core["type"] == "STRUCTURAL":
             lst = core["entities"]
             lst.append([crte_enti])
-        print(lst)
+        jsnlst = json.dumps(lst)
+        print(jsnlst)
+        core["entities"] = jsnlst
+        data["core_attribute"] = core
 
-        #print(self.model_db)
-        #print(nmn)
-        pass
 
-    def read_operation(self):
-        self.list_up_entity()
-        selected = input("Select Entity:")
+        #modify original entities
 
-        if selected not in self.model_db:
-            print("[ERR] Entity Not Found")
-        else:
-            model = self.import_system_entity_structure(self.model_db[selected])
-            print(model)
-        pass
 
-    def update_operation(self):
-        self.list_up_entity()
-        # TODO implement
         pass
 
     def delete_operation(self):
