@@ -16,8 +16,8 @@ msa.insert_input_port("agent")
 msa.insert_output_port("env")
 msa.insert_output_port("agent")
 
-msa.insert_entity("sensors", 1, False)
-msa.insert_entity("processor", 1, False)
+msa.insert_entity("sensors", 1, True)
+msa.insert_entity("processor", 2, False)
 msa.insert_entity("actuators", 1, False)
 
 msa.insert_coupling(("", "env"), ("sensors", "env"))

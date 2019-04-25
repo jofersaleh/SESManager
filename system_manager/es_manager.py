@@ -148,7 +148,28 @@ class EntityManager(object):
 
     def create_operation(self):
         # TODO implement
-        pass
+
+        nm = input("Type name of Entity:")
+        #crte_enti = self.create_entity_structure(nm)
+        #lst = ModelStructuralAttribute()
+        #crte_enti.set_core_attribute(lst)
+        lst_enti = OrderedDict()
+        lst_enti["name"] = nm
+        lst_enti["core_attribute"] = {'type':'STRUCTURAL', "entities" : [], "input_ports" : [], "output_ports" : [],
+                                      "external_input" : {}, "external_output" : {}, "internal" : {}}
+
+
+
+        #jstring = json.dumps(lst_enti, indent="\t")
+        #print(jstring)
+        #print(self.entity_path+"."+nm+".json")
+        with open(self.entity_path+'\\'+nm+".json",'w') as make_file:
+            json.dump(lst_enti, make_file, indent= "\t")
+
+
+
+
+
 
     def read_operation(self):
         self.list_up_entity()
@@ -162,8 +183,51 @@ class EntityManager(object):
         pass
 
     def update_operation(self):
-        self.list_up_entity()
         # TODO implement
+
+        self.list_up_entity()
+        selected = input("Select Entity to update:")
+        if selected not in self.model_db:
+            print("[ERR] Entity Not Found")
+            pass
+        model = self.import_system_entity_structure(self.model_db[selected])
+        print(model)
+
+        ###make menu to modify entities##
+
+        # crteate new entities
+        nmn = input("Type name of Entities:")
+        arti = int(input("Type number of arity"))
+        A = True
+        opt = 0
+        while A:
+            opt = input("is this entity optional? (y/n)")
+            if opt == "y":
+                opt = True
+                A = False
+            elif opt == "n":
+                opt = False
+                A = False
+            else:
+                print("Please type only y or n")
+        print(nmn, arti, opt)
+
+        json_data = open(self.model_db[selected]).read()
+        data = json.loads(json_data)
+
+        core = data["core_attribute"]
+        if core["type"] == "STRUCTURAL":
+            lst = core["entities"]
+            lst.append([crte_enti])
+        jsnlst = json.dumps(lst)
+        print(jsnlst)
+        core["entities"] = jsnlst
+        data["core_attribute"] = core
+
+
+        #modify original entities
+
+
         pass
 
     def delete_operation(self):
@@ -185,6 +249,7 @@ class EntityManager(object):
             selected = EntityManager.crud_menu()
 
             if selected == 1:
+                self.create_operation()
                 pass
             elif selected == 2:
                 self.read_operation()
