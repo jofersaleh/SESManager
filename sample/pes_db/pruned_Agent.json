@@ -1,0 +1,73 @@
+{
+	"name": "pruned_Agent",
+	"core_attribute": {
+		"type": "STRUCTURAL",
+		"entities": [
+			[
+				"sensors",
+				1,
+				false
+			],
+			[
+				"processor",
+				1,
+				false
+			],
+			[
+				"actuators",
+				1,
+				false
+			]
+		],
+		"input_ports": [
+			"env",
+			"agent"
+		],
+		"output_ports": [
+			"env",
+			"agent"
+		],
+		"external_input": {
+			"env": [
+				[
+					"sensors",
+					"env"
+				]
+			],
+			"agent": [
+				[
+					"sensors",
+					"agent"
+				]
+			]
+		},
+		"external_output": {
+			"out": [
+				[
+					"actuators",
+					"out"
+				]
+			]
+		},
+		"internal": {
+			"sensors": [
+				[
+					"event",
+					[
+						"process",
+						"event"
+					]
+				]
+			],
+			"processor": [
+				[
+					"control",
+					[
+						"actuators",
+						"control"
+					]
+				]
+			]
+		}
+	}
+}

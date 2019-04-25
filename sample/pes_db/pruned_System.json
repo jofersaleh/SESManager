@@ -1,0 +1,53 @@
+{
+	"name": "pruned_System",
+	"core_attribute": {
+		"type": "STRUCTURAL",
+		"entities": [
+			[
+				"en",
+				1,
+				false
+			],
+			[
+				"en1",
+				2,
+				false
+			]
+		],
+		"input_ports": [
+			"in1",
+			"in2"
+		],
+		"output_ports": [
+			"out1",
+			"out2"
+		],
+		"external_input": {
+			"in1": [
+				[
+					"en",
+					"in"
+				]
+			]
+		},
+		"external_output": {
+			"out": [
+				[
+					"en1",
+					"out"
+				]
+			]
+		},
+		"internal": {
+			"en": [
+				[
+					"out",
+					[
+						"en1",
+						"in"
+					]
+				]
+			]
+		}
+	}
+}
