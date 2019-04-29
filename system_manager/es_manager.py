@@ -160,14 +160,14 @@ class EntityManager(object):
         inptnum = int(input("How many input port did system need"))
         if inptnum >= 1:
             for i in range(inptnum-1):
-                instnm = "in"+str(i)
+                instnm = "in"+str(i+1)
                 msa.insert_input_port(instnm)
 
         outptnum = int(input("How many output port did system need"))
         if outptnum >= 1:
             for i in range(outptnum-1):
-                instnm = "in"+str(i)
-                msa.insert_output_port(instnm)
+                outstnm = "out"+str(i+1)
+                msa.insert_output_port(outstnm)
 
         Flag = True
         while Flag:
