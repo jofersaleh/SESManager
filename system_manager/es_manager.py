@@ -149,27 +149,64 @@ class EntityManager(object):
     def create_operation(self):
         # TODO implement
 
+        esm = EntityManager()
+        msa = ModelStructuralAttribute()
+        entity = esm.create_entity_structure()
+
+
         nm = input("Type name of Entity:")
-        #crte_enti = self.create_entity_structure(nm)
-        #lst = ModelStructuralAttribute()
-        #crte_enti.set_core_attribute(lst)
-        lst_enti = OrderedDict()
-        lst_enti["name"] = nm
-        lst_enti["core_attribute"] = {'type':'STRUCTURAL', "entities" : [], "input_ports" : [], "output_ports" : [],
-                                      "external_input" : {}, "external_output" : {}, "internal" : {}}
+        entity.set_name(nm)
 
+        inptnum = int(input("How many input port did system need"))
+        if inptnum >= 1:
+            for i in range(inptnum-1):
+                instnm = "in"+str(i)
+                msa.insert_input_port(instnm)
 
+        outptnum = int(input("How many output port did system need"))
+        if outptnum >= 1:
+            for i in range(outptnum-1):
+                instnm = "in"+str(i)
+                msa.insert_output_port(instnm)
 
+        Flag = True
+        while Flag:
+            ntnm = input("What is the entity name?")
+            arti = int(input("Type number of arity"))
+            A = True
+            opt = 0
+            while A:
+                opt = input("is this entity optional? (y/n)")
+                if opt == "y":
+                    opt = True
+                    A = False
+                elif opt == "n":
+                    opt = False
+                    A = False
+                else:
+                    print("Please type only y or n")
+            msa.insert_entity(ntnm, arti, opt)
+            quest = input("Did you need more entity?(y/n)")
+            if quest == "n":
+                Flag = False
+
+        #msa.insert_coupling(("", "in1"), ("en", "in"))
+        #msa.insert_coupling(("en", "out"), ("en1", "in"))
+        #msa.insert_coupling(("en1", "out"), ("", "out"))
+
+        entity.set_core_attribute(msa)
+        esm.create_system(entity)
+        esm.export_system_entity_structure(entity, self.entity_path, nm+".json")
+
+        #lst_enti = OrderedDict()
+        #lst_enti["name"] = nm
+        #lst_enti["core_attribute"] = {'type':'STRUCTURAL', "entities" : [], "input_ports" : [], "output_ports" : [],
+        #                              "external_input" : {}, "external_output" : {}, "internal" : {}}
         #jstring = json.dumps(lst_enti, indent="\t")
         #print(jstring)
         #print(self.entity_path+"."+nm+".json")
-        with open(self.entity_path+'\\'+nm+".json",'w') as make_file:
-            json.dump(lst_enti, make_file, indent= "\t")
-
-
-
-
-
+        #with open(self.entity_path+'\\'+nm+".json",'w') as make_file:
+        #    json.dump(lst_enti, make_file, indent= "\t")
 
     def read_operation(self):
         self.list_up_entity()
