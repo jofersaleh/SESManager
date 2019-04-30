@@ -169,9 +169,13 @@ class EntityManager(object):
                 outstnm = "out"+str(i+1)
                 msa.insert_output_port(outstnm)
 
+        list_entity_nm = []
+
         Flag = True
         while Flag:
+            ### Need check same name
             ntnm = input("What is the entity name?")
+            list_entity_nm.append(ntnm)
             arti = int(input("Type number of arity"))
             A = True
             opt = 0
@@ -190,23 +194,55 @@ class EntityManager(object):
             if quest == "n":
                 Flag = False
 
-        #msa.insert_coupling(("", "in1"), ("en", "in"))
-        #msa.insert_coupling(("en", "out"), ("en1", "in"))
-        #msa.insert_coupling(("en1", "out"), ("", "out"))
+
+        ### Need check connection situation
+        ### Need refuse to make port
+        Flag = True
+        while Flag:
+            i = 1
+            print(list_entity_nm)
+            ### Need check with list_entity_nm there is object
+            input_entity = input("choose entity to connect with input port")
+            input_port = "in" + str(i)
+            msa.insert_coupling(("", input_port), (input_entity, "in"))
+            if input("did you need more connection?(y/n)") == "y":
+                i += 1
+                if inptnum < i:
+                    print("no more port")
+                    Flag = False
+            else:
+                Flag = False
+
+        Flag = True
+        while Flag:
+            i = 1
+            print(list_entity_nm)
+            output_entity = input("choose entity to connect with output port")
+            output_port = "out" + str(i)
+            msa.insert_coupling((output_entity, output_port), ("", "out"))
+            if input("did you need more connection?(y/n)") == "y":
+                i += 1
+                if inptnum < i:
+                    print("no more port")
+                    Flag = False
+            else:
+                Flag = False
+
+        Flag = True
+        while Flag:
+            print(list_entity_nm)
+            interaction_entity1 = input("choose first entity out to other")
+            interaction_entity2 = input("choose second entity in by other")
+            msa.insert_coupling((interaction_entity1, "out"), (interaction_entity2, "in"))
+            if input("did you need more connection?(y/n)") != "y":
+                Flag = False
+
 
         entity.set_core_attribute(msa)
         esm.create_system(entity)
         esm.export_system_entity_structure(entity, self.entity_path, nm+".json")
 
-        #lst_enti = OrderedDict()
-        #lst_enti["name"] = nm
-        #lst_enti["core_attribute"] = {'type':'STRUCTURAL', "entities" : [], "input_ports" : [], "output_ports" : [],
-        #                              "external_input" : {}, "external_output" : {}, "internal" : {}}
-        #jstring = json.dumps(lst_enti, indent="\t")
-        #print(jstring)
-        #print(self.entity_path+"."+nm+".json")
-        #with open(self.entity_path+'\\'+nm+".json",'w') as make_file:
-        #    json.dump(lst_enti, make_file, indent= "\t")
+
 
     def read_operation(self):
         self.list_up_entity()
@@ -231,6 +267,12 @@ class EntityManager(object):
         print(model)
 
         ###make menu to modify entities##
+
+        print("What did you want to modify entity")
+        print("1. Add Entity")
+        print("2. delete Entity")
+        print("3. modify Entity")
+        print("0. Exit")
 
         # crteate new entities
         nmn = input("Type name of Entities:")
