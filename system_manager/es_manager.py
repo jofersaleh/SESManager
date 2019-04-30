@@ -83,6 +83,23 @@ class EntityManager(object):
 
         return None
 
+    @staticmethod
+    def static_import_system_entity_structure(_path):
+        ''' Temporarily '''
+        json_data = open(_path).read()
+        data = json.loads(json_data)
+        name = data["name"]
+        entity = EntityManager.create_entity_structure(name)
+
+        core = data["core_attribute"]
+        if core["type"] == "STRUCTURAL":
+            attr = ModelStructuralAttribute()
+            attr.deserialize(core)
+            entity.set_core_attribute(attr)
+            return entity
+
+        return None
+
     def select_root_entity(self, _name):
         """
             Load selected root entity

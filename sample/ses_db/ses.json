@@ -6,11 +6,11 @@
 			[
 				"sensors",
 				1,
-				false
+				true
 			],
 			[
 				"processor",
-				1,
+				2,
 				false
 			],
 			[

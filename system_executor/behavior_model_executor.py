@@ -22,6 +22,12 @@ class BehaviorModelExecutor(SysObject, BehaviorModel):
     def __str__(self):
         return "[N]:{0}, [S]:{1}".format(self.get_name(), self._cur_state)
 
+    def get_engine_name(self):
+        return self.engine_name
+
+    def set_engine_name(self, engine_name):
+        self.engine_name = engine_name
+
     def get_create_time(self):
         return self._instance_t
 

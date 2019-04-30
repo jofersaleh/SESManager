@@ -68,6 +68,6 @@ mm.export_model(msa, "en2.json")
 
 # esm.interactive_pruning()
 '''
-sm = SystemManager("./sample/ses_db", "./sample/model_db")
+sm = SystemManager("./sample/ses_db", "./sample/model_db", './sample/pes_db')
 sm.start()
 
