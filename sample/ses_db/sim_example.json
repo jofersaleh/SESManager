@@ -1,0 +1,33 @@
+{
+	"name": "SimEx",
+	"core_attribute": {
+		"type": "STRUCTURAL",
+		"entities": [
+			[
+				"Human",
+				1,
+				false
+			],
+			[
+				"Receiver",
+				1,
+				false
+			]
+		],
+		"input_ports": [],
+		"output_ports": [],
+		"external_input": {},
+		"external_output": {},
+		"internal": {
+			"Human": [
+				[
+					"hello",
+					[
+						"Receiver",
+						"greeting"
+					]
+				]
+			]
+		}
+	}
+}
