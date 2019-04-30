@@ -4,6 +4,20 @@ from system_manager.es_manager import EntityManager
 from system_entity.structure_attribute import *
 from system_manager.system_manager import *
 
+import os
+
+'''
+Database Path management - added by cbchoi
+'''
+if not os.path.exists('./sample/ses_db'):
+    os.mkdir('./sample/ses_db')
+
+if not os.path.exists('./sample/pes_db'):
+    os.mkdir('./sample/pes_db')
+
+if not os.path.exists('./sample/model_db'):
+    os.mkdir('./sample/model_db')
+
 esm = EntityManager("./sample/ses_db")
 
 entity = esm.create_entity_structure()
