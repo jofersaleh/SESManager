@@ -39,19 +39,18 @@ class ExecutionManager(object):
         pass
 
     def _select_pes(self):
-        self._list_pes()
-        selected = input("Select PES:")
-
-        if selected not in self.pes_db_map:
-            print("[ERR] Entity Not Found")
-        else:
-            return EntityManager.static_import_system_entity_structure(self.pes_db_map[selected])
+        while True:
+            self._list_pes()
+            selected = input("Select PES:")
+            if selected not in self.pes_db_map:
+                print("[ERR] Entity Not Found")
+            else:
+                return EntityManager.static_import_system_entity_structure(self.pes_db_map[selected])
 
     def _sim_start(self):
         entity_structure = self._select_pes()
         SystemSimulator().register_engine(entity_structure.get_name())
         entities = entity_structure.get_core_attribute().retrieve_entities()
-
         instance_map = {}
         for entity in entities:
             with open(self.model_db_map[entity[0]], 'rb') as f:
