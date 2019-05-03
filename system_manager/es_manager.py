@@ -154,6 +154,26 @@ class EntityManager(object):
 
             self.export_system_entity_structure(pes, pes_path, pes.get_name() + ".json")
 
+    def YN_Choice_menu(self, text):
+        while True:
+            opt = input(text + "(y/n)")
+            if opt == "y":
+                Flag = True
+                return Flag
+            elif opt == "n":
+                Flag = False
+                return Flag
+            else:
+                print("Please type only y or n")
+
+    def Chk_int(self, _num):
+        try:
+            int(_num)
+            return True
+        except ValueError:
+            print("please type int")
+            return False
+
     @staticmethod
     def crud_menu():
         print("1. Create new Entity")
@@ -164,95 +184,111 @@ class EntityManager(object):
         return int(input(">>"))
 
     def create_operation(self):
-        # TODO implement
-
         esm = EntityManager()
         msa = ModelStructuralAttribute()
         entity = esm.create_entity_structure()
-
-
-        nm = input("Type name of Entity:")
-        entity.set_name(nm)
-
-        inptnum = int(input("How many input port did system need"))
-        if inptnum >= 1:
-            for i in range(inptnum-1):
-                instnm = "in"+str(i+1)
-                msa.insert_input_port(instnm)
-
-        outptnum = int(input("How many output port did system need"))
-        if outptnum >= 1:
-            for i in range(outptnum-1):
-                outstnm = "out"+str(i+1)
-                msa.insert_output_port(outstnm)
-
         list_entity_nm = []
 
+        #setting name
+        nm = input("Type name of Entity:")
+        entity.set_name(nm)
+        #setting input output
         Flag = True
         while Flag:
-            ### Need check same name
+            inptnum = input("How many input port did system need")
+            if self.Chk_int(inptnum):
+                inptnum = int(inptnum)
+                if inptnum == 0:
+                    break
+                for i in range(inptnum-1):
+                        instnm = "in"+str(i+1)
+                        msa.insert_input_port(instnm)
+                Flag = False
+        Flag = True
+        while Flag:
+            outptnum = input("How many output port did system need")
+            if self.Chk_int(outptnum):
+                outptnum = int(outptnum)
+                if outptnum == 0:
+                    break
+                for i in range(outptnum-1):
+                    outstnm = "out"+str(i+1)
+                    msa.insert_output_port(outstnm)
+                Flag = False
+        #setting entity
+        Flag = True
+        while Flag:
             ntnm = input("What is the entity name?")
             list_entity_nm.append(ntnm)
-            arti = int(input("Type number of arity"))
-            A = True
+            loop=True
+            while loop:
+                arti = input("Type number of arity")
+                if self.Chk_int(arti):
+                    arti = int(arti)
+                    loop = False
+            loop = True
             opt = 0
-            while A:
+            while loop:
                 opt = input("is this entity optional? (y/n)")
                 if opt == "y":
                     opt = True
-                    A = False
+                    loop = False
                 elif opt == "n":
                     opt = False
-                    A = False
+                    loop = False
                 else:
                     print("Please type only y or n")
             msa.insert_entity(ntnm, arti, opt)
-            quest = input("Did you need more entity?(y/n)")
-            if quest == "n":
-                Flag = False
-
-
-        ### Need check connection situation
-        ### Need refuse to make port
-        Flag = True
-        while Flag:
-            i = 1
-            print(list_entity_nm)
-            ### Need check with list_entity_nm there is object
-            input_entity = input("choose entity to connect with input port")
-            input_port = "in" + str(i)
-            msa.insert_coupling(("", input_port), (input_entity, "in"))
-            if input("did you need more connection?(y/n)") == "y":
-                i += 1
-                if inptnum < i:
-                    print("no more port")
-                    Flag = False
-            else:
-                Flag = False
-
-        Flag = True
-        while Flag:
-            i = 1
-            print(list_entity_nm)
-            output_entity = input("choose entity to connect with output port")
-            output_port = "out" + str(i)
-            msa.insert_coupling((output_entity, output_port), ("", "out"))
-            if input("did you need more connection?(y/n)") == "y":
-                i += 1
-                if inptnum < i:
-                    print("no more port")
-                    Flag = False
-            else:
-                Flag = False
-
-        Flag = True
-        while Flag:
-            print(list_entity_nm)
-            interaction_entity1 = input("choose first entity out to other")
-            interaction_entity2 = input("choose second entity in by other")
-            msa.insert_coupling((interaction_entity1, "out"), (interaction_entity2, "in"))
-            if input("did you need more connection?(y/n)") != "y":
-                Flag = False
+            Flag = self.YN_Choice_menu("Did you need more entity?")
+        #setting coupling
+        ask = self.YN_Choice_menu("Did you want to make input port?")
+        if ask == True:
+            Flag = True
+            i = 0
+            while Flag:
+                print(list_entity_nm)
+                input_entity = input("choose entity to connect with input port")
+                if input_entity in list_entity_nm:
+                    input_port = "in" + str(i)
+                    msa.insert_coupling(("", input_port), (input_entity, "in"))
+                    Flag = self.YN_Choice_menu("did you need more connection?")
+                    if Flag == True:
+                        i += 1
+                        if inptnum < i:
+                            print("no more port remain")
+                            Flag = False
+                else:
+                    print("Not in a list. Please type again")
+        ask = self.YN_Choice_menu("Did you want to make output port?")
+        if ask == True:
+            Flag = True
+            i = 0
+            while Flag:
+                print(list_entity_nm)
+                output_entity = input("choose entity to connect with output port")
+                if output_entity in list_entity_nm:
+                    output_port = "out" + str(i)
+                    msa.insert_coupling((output_entity, output_port), ("", "out"))
+                    Flag = self.YN_Choice_menu("did you need more connection?")
+                    if Flag == True:
+                        i += 1
+                        if inptnum < i:
+                            print("no more port remain")
+                            Flag = False
+                else:
+                    print("Not in a list. Please type again")
+        ask = self.YN_Choice_menu("Did you want to make internal port?")
+        if ask == True:
+            Flag = True
+            while Flag:
+                print(list_entity_nm)
+                interaction_entity1 = input("choose first entity out to other")
+                interaction_entity2 = input("choose second entity in by other")
+                if (interaction_entity1 in list_entity_nm) & (interaction_entity2 in list_entity_nm):
+                    msa.insert_coupling((interaction_entity1, "out"), (interaction_entity2, "in"))
+                    Flag = self.YN_Choice_menu("did you need more connection?")
+                else:
+                    print("Not in a list. Please type again")
 
 
         entity.set_core_attribute(msa)
@@ -292,21 +328,9 @@ class EntityManager(object):
         print("0. Exit")
 
         # crteate new entities
-        nmn = input("Type name of Entities:")
-        arti = int(input("Type number of arity"))
-        A = True
-        opt = 0
-        while A:
-            opt = input("is this entity optional? (y/n)")
-            if opt == "y":
-                opt = True
-                A = False
-            elif opt == "n":
-                opt = False
-                A = False
-            else:
-                print("Please type only y or n")
-        print(nmn, arti, opt)
+        nmn = input("Type name of Entities to create:")
+
+
 
         json_data = open(self.model_db[selected]).read()
         data = json.loads(json_data)
