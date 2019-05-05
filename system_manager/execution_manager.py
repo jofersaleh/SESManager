@@ -29,6 +29,8 @@ class ExecutionManager(object):
     def sim_menu():
         print("1. List Pruned Entity Structure")
         print("2. Simulation Start")
+        print("3. Execute System")
+        print("4. Synthesize Executable")
         print("0. Exit")
         return int(input(">>"))
 
@@ -67,6 +69,86 @@ class ExecutionManager(object):
 
         pass
 
+    def _sys_exec(self):
+        es = self._select_pes()
+        SystemSimulator().register_engine(es.get_name())
+        attributes = es.get_attribute_list()
+        entities = es.get_core_attribute().retrieve_entities()
+
+        ra = None
+        for attr in attributes:
+            if attr.get_type() == AttributeType.RUNTIME:
+                ra = attr
+
+        instance_map = {}
+        if not ra:
+            for entity in entities:
+                with open(self.model_db_map[entity[0]], 'rb') as f:
+                    instance_map[entity[0]] = dill.load(f)
+                    instance_map[entity[0]].set_engine_name(es.get_name())
+                    SystemSimulator().get_engine(es.get_name()).register_entity(instance_map[entity[0]])
+        else:
+            entity_list = ra.retrieve_entities()
+            model_map = ra.retrieve_model_map()
+            domain_map = ra.retrieve_domain_map()
+
+            for entity in entity_list:
+                with open(model_map[entity], 'rb') as f:
+                    instance_map[entity] = dill.load(f)
+                with open(domain_map[entity], 'rb') as f:
+                    instance_map[entity].domain_obj = dill.load(f)
+
+                instance_map[entity].set_engine_name(es.get_name())
+                SystemSimulator().get_engine(es.get_name()).register_entity(instance_map[entity])
+
+        ic_map = es.get_core_attribute().retrieve_internal_coupling()
+        for model, tup in ic_map.items():
+            SystemSimulator().get_engine(es.get_name()).coupling_relation(
+                instance_map[model], tup[0][0], instance_map[tup[0][1][0]], tup[0][1][1])
+
+        SystemSimulator().get_engine(es.get_name()).simulate()
+
+    def _sys_synthesis(self):
+        es = self._select_pes()
+        SystemSimulator().register_engine(es.get_name())
+        attributes = es.get_attribute_list()
+        entities = es.get_core_attribute().retrieve_entities()
+
+        ra = None
+        for attr in attributes:
+            if attr.get_type() == AttributeType.RUNTIME:
+                ra = attr
+
+        instance_map = {}
+        if not ra:
+            for entity in entities:
+                with open(self.model_db_map[entity[0]], 'rb') as f:
+                    instance_map[entity[0]] = dill.load(f)
+                    instance_map[entity[0]].set_engine_name(es.get_name())
+                    SystemSimulator().get_engine(es.get_name()).register_entity(instance_map[entity[0]])
+        else:
+            entity_list = ra.retrieve_entities()
+            model_map = ra.retrieve_model_map()
+            domain_map = ra.retrieve_domain_map()
+
+            for entity in entity_list:
+                with open(model_map[entity], 'rb') as f:
+                    instance_map[entity] = dill.load(f)
+                with open(domain_map[entity], 'rb') as f:
+                    instance_map[entity].domain_obj = dill.load(f)
+
+                instance_map[entity].set_engine_name(es.get_name())
+                SystemSimulator().get_engine(es.get_name()).register_entity(instance_map[entity])
+
+        ic_map = es.get_core_attribute().retrieve_internal_coupling()
+        for model, tup in ic_map.items():
+            SystemSimulator().get_engine(es.get_name()).coupling_relation(
+                instance_map[model], tup[0][0], instance_map[tup[0][1][0]], tup[0][1][1])
+
+        _path = input(">> Enter Path: ")
+        with open(os.path.join(os.path.abspath(_path), es.get_name() + ".simx"), 'wb') as f:
+            dill.dump(SystemSimulator().get_engine(es.get_name()), f)
+
     def start(self):
         while True:
             selected = ExecutionManager.sim_menu()
@@ -76,6 +158,12 @@ class ExecutionManager(object):
                 pass
             elif selected == 2:
                 self._sim_start()
+                pass
+            elif selected == 3:
+                self._sys_exec()
+                pass
+            elif selected == 4:
+                self._sys_synthesis()
                 pass
             else:
                 break

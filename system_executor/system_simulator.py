@@ -1,5 +1,5 @@
 from system_executor.system_executor import *
-
+import dill
 
 class SingletonType(object):
     def __call__(self, cls, *args, **kwargs):
@@ -25,6 +25,14 @@ class SystemSimulator(object):
     @staticmethod
     def get_engine(sim_name):
         return SystemSimulator._engine[sim_name]
+
+    @staticmethod
+    def exec_simulation_instance(instance_path):
+        sim_instance = None
+        with open(instance_path, 'rb') as f:
+            sim_instance = dill.load(f)
+            sim_instance.simulate()
+        pass
 
     def __init__(self):
         pass

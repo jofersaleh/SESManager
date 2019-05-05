@@ -1,7 +1,6 @@
 {
 	"name": "Agent",
 	"core_attribute": {
-		"type": "ASPECT",
 		"entities": [
 			[
 				"sensors",
@@ -69,5 +68,6 @@
 				]
 			]
 		}
-	}
+	},
+	"optional_attributes": {}
 }
