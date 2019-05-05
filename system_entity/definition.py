@@ -6,7 +6,7 @@ from enum import Enum
 class AttributeType(Enum):
     # BEHAVIOR = 0
     ASPECT = 1
-    MULTI_ASPECT = 2
+    RUNTIME = 2
     UNKNOWN_TYPE = -1
 
     @staticmethod
@@ -15,8 +15,8 @@ class AttributeType(Enum):
         #    return AttributeType.BEHAVIOR
         if "ASPECT" == name.upper():
             return AttributeType.ASPECT
-        elif "MULTI_ASPECT" == name.upper():
-            return AttributeType.MULTI_ASPECT
+        elif "RUNTIME" == name.upper():
+            return AttributeType.RUNTIME
         else:
             return AttributeType.UNKNOWN_TYPE
 
@@ -26,12 +26,12 @@ class AttributeType(Enum):
         #    return "BEHAVIOR"
         if enum == AttributeType.ASPECT:
             return "ASPECT"
-        elif enum == AttributeType.MULTI_ASPECT:
-            return "MULTI_ASPECT"
+        elif enum == AttributeType.RUNTIME:
+            return "RUNTIME"
         else:
             return "UNKNOWN"
 
-
+'''
 class AlternativeType(Enum):
     AND = 0
     OR = 1
@@ -44,7 +44,7 @@ class AlternativeType(Enum):
             return AttributeType.BEHAVIOR
         elif "ASPECT" == name.upper():
             return AttributeType.ASPECT
-        elif "ALTERNATIVE" == name.upper():
+        elif "RUNTIME" == name.upper():
             return AttributeType.MULTI_ASPECT
         else:
             return AttributeType.UNKNOWN_TYPE
@@ -59,3 +59,4 @@ class AlternativeType(Enum):
             return "ALTERNATIVE"
         else:
             return "UNKNOWN"
+'''
