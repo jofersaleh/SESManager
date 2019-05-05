@@ -42,31 +42,26 @@ class EntityManager(object):
     def export_system_entity_structure(_entity, _path=".", name="ses.json"):
         entity_data = OrderedDict()
         entity_data["name"] = _entity.get_name()
-        entity_data["core_attribute"] = _entity.serialize_core_attribute()
-
+        entity_data["core_attribute"] = _entity.get_core_attribute().serialize()
+        entity_data["optional_attributes"] = _entity.serialize_attributes()
         f = open(os.path.join(_path, name), "w")
         f.write(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
         f.close()
 
-    def export_system_entity_structure_recursively(self, path="."):
-        entity_data = OrderedDict()
-        entity_data["name"] = self.root_entity.get_name()
-        entity_data["core_attribute"] = self.root_entity.attribute_to_list()
-
-    def import_system_entity_structure(self, path, name):
+    '''    def import_system_entity_structure(self, path, name):
         json_data = open(os.path.join(path, name)).read()
         data = json.loads(json_data)
         name = data["name"]
         entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
+        if core["type"] == "ASPECT":
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
             entity.set_core_attribute(attr)
             return entity
 
-        return None
+        return None'''
 
     def import_system_entity_structure(self, _path):
         json_data = open(_path).read()
@@ -75,13 +70,16 @@ class EntityManager(object):
         entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
-            attr = ModelStructuralAttribute()
-            attr.deserialize(core)
-            entity.set_core_attribute(attr)
-            return entity
 
-        return None
+        attr = ModelStructuralAttribute()
+        attr.deserialize(core)
+        entity.set_core_attribute(attr)
+
+        if "optional_attributes" in data:
+            entity.deserialize_attributes(data["optional_attributes"])
+
+        return entity
+
 
     @staticmethod
     def static_import_system_entity_structure(_path):
@@ -92,13 +90,15 @@ class EntityManager(object):
         entity = EntityManager.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
-            attr = ModelStructuralAttribute()
-            attr.deserialize(core)
-            entity.set_core_attribute(attr)
-            return entity
+        #if core["type"] == "ASPECT":
+        attr = ModelStructuralAttribute()
+        attr.deserialize(core)
+        entity.set_core_attribute(attr)
 
-        return None
+        if "optional_attributes" in data:
+            entity.deserialize_attributes(data["optional_attributes"])
+
+        return entity
 
     def select_root_entity(self, _name):
         """
@@ -147,13 +147,34 @@ class EntityManager(object):
                 else:
                     print("[ERR] Entity {} not found".format(choice))
                 entity_list = pes.check_validity()
+
+            # cbchoi added
+            choice = input(">>> Do you want to synthesize executable? (y/N)")
+            if choice == 'y':
+                ra = RuntimeAttribute()
+                entity_list = pes.get_core_attribute().retrieve_entities()
+                for entity in entity_list:
+                    choice = input(">>> Do you want to add model instance? (y/N)")
+                    if choice == "y":
+                        ra.insert_entity(entity[0])
+                        mpath = input(">>> Enter path of {}'s model instance: ".format(entity[0]))
+                        ra.insert_model_path(entity[0], mpath)
+                        choice = input(">>> Do you want to add domain instance? (y/N)")
+                        if choice == "y":
+                            dpath = input(">>> Enter path of {}'s domain instance: ".format(entity[0]))
+                            ra.insert_domain_path(entity[0], dpath)
+                        pass
+                    else:
+                        continue
+                    pass
+                pes.insert_attribute(ra)
+
             print(">>> Pruned Entity Structure <<< ")
             print(pes)
             print("Stored in pes_db")
             pes_path = os.path.join(os.path.dirname(self.entity_path), "pes_db")
 
             self.export_system_entity_structure(pes, pes_path, pes.get_name() + ".json")
-
     def YN_Choice_menu(self, text):
         while True:
             opt = input(text + "(y/n)")
@@ -460,3 +481,4 @@ class EntityManager(object):
             else:
                 loop = False
                 pass
+

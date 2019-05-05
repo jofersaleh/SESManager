@@ -1,6 +1,8 @@
 # from system_entity.attribute import *
 from system_entity.structure_attribute import *
+from system_entity.runtime_attribute import *
 import copy
+
 
 class Entity(object):
     def __init__(self, _name):
@@ -41,22 +43,23 @@ class Entity(object):
     def get_attribute_list(self):
         return self.attribute_list
 
-    def serialize_core_attribute(self):
-        return self.core_attribute.serialize()
+    def serialize_attributes(self):
+        attribute_map = {}
+        for attribute in self.attribute_list:
+            attribute_map[AttributeType.resolve_type_from_enum(attribute.get_type())] = attribute.serialize()
 
-    def deserialize_core_attribute(self, jsons):
-        for json in jsons:
-            enum = AttributeType.resolve_type_from_str(json["type"])
-            if enum == AttributeType.BEHAVIOR:
-                pass
-            elif enum == AttributeType.ASPECT:
-                self.core_attribute = ModelStructuralAttribute()
-                self.core_attribute.deserialize(json)
-                # TODO: add optional attributes handling
-                pass
-            else:
-                pass
+        return attribute_map
+ #   def serialize_core_attribute(self):
+ #       return self.core_attribute.serialize()
+
+    def deserialize_attributes(self, jsons):
+        print(jsons["RUNTIME"])
         pass
+        for key, json in jsons.items():
+            if key == "RUNTIME":
+                ra = RuntimeAttribute()
+                ra.deserialize(json)
+                self.insert_attribute(ra)
 
     def clone(self):
         return copy.deepcopy(self)
