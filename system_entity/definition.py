@@ -42,7 +42,7 @@ class AlternativeType(Enum):
     def resolve_type_from_str(name):
         if "BEHAVIOR" == name.upper():
             return AttributeType.BEHAVIOR
-        elif "STRUCTURAL" == name.upper():
+        elif "ASPECT" == name.upper():
             return AttributeType.ASPECT
         elif "ALTERNATIVE" == name.upper():
             return AttributeType.MULTI_ASPECT
@@ -54,7 +54,7 @@ class AlternativeType(Enum):
         if enum == AttributeType.BEHAVIOR:
             return "BEHAVIOR"
         elif enum == AttributeType.ASPECT:
-            return "STRUCTURAL"
+            return "ASPECT"
         elif enum == AttributeType.MULTI_ASPECT:
             return "ALTERNATIVE"
         else:

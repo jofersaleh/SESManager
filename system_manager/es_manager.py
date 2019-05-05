@@ -60,7 +60,7 @@ class EntityManager(object):
         entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
+        if core["type"] == "ASPECT":
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
             entity.set_core_attribute(attr)
@@ -75,7 +75,7 @@ class EntityManager(object):
         entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
+        if core["type"] == "ASPECT":
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
             entity.set_core_attribute(attr)
@@ -92,7 +92,7 @@ class EntityManager(object):
         entity = EntityManager.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
+        if core["type"] == "ASPECT":
             attr = ModelStructuralAttribute()
             attr.deserialize(core)
             entity.set_core_attribute(attr)
@@ -153,6 +153,13 @@ class EntityManager(object):
             pes_path = os.path.join(os.path.dirname(self.entity_path), "pes_db")
 
             self.export_system_entity_structure(pes, pes_path, pes.get_name() + ".json")
+
+            # cbchoi added
+            choice = input(">>> Do you want to synthesize executable? (y/N)")
+            if choice == 'y':
+                entity_list = pes.get_core_attribute().retrieve_entities()
+                for entity in entity_list:
+                   pass
 
     def YN_Choice_menu(self, text):
         while True:

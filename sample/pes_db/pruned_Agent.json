@@ -1,7 +1,7 @@
 {
 	"name": "pruned_Agent",
 	"core_attribute": {
-		"type": "STRUCTURAL",
+		"type": "ASPECT",
 		"entities": [
 			[
 				"sensors",

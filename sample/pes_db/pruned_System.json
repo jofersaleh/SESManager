@@ -1,7 +1,7 @@
 {
 	"name": "pruned_System",
 	"core_attribute": {
-		"type": "STRUCTURAL",
+		"type": "ASPECT",
 		"entities": [
 			[
 				"en",

@@ -1,7 +1,7 @@
 {
 	"name": "SimEx",
 	"core_attribute": {
-		"type": "STRUCTURAL",
+		"type": "ASPECT",
 		"entities": [
 			[
 				"Human",
