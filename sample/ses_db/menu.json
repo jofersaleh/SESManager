@@ -1,0 +1,56 @@
+{
+	"name": "menu",
+	"core_attribute": {
+		"type": "ASPECT",
+		"entities": [
+			[
+				"display",
+				1,
+				false
+			],
+			[
+				"selection",
+				1,
+				false
+			],
+			[
+				"actions",
+				1,
+				false
+			]
+		],
+		"input_ports": [],
+		"output_ports": [],
+		"external_input": {},
+		"external_output": {},
+		"internal": {
+			"display": [
+				[
+					"out",
+					[
+						"selection",
+						"in"
+					]
+				]
+			],
+			"selection": [
+				[
+					"out",
+					[
+						"action",
+						"in"
+					]
+				]
+			],
+			"action": [
+				[
+					"out",
+					[
+						"display",
+						"in"
+					]
+				]
+			]
+		}
+	}
+}
