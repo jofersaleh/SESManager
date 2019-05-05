@@ -42,16 +42,11 @@ class EntityManager(object):
     def export_system_entity_structure(_entity, _path=".", name="ses.json"):
         entity_data = OrderedDict()
         entity_data["name"] = _entity.get_name()
-        entity_data["core_attribute"] = _entity.serialize_core_attribute()
+        entity_data["core_attribute"] = _entity.get_core_attribute().serialize()
 
         f = open(os.path.join(_path, name), "w")
         f.write(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
         f.close()
-
-    def export_system_entity_structure_recursively(self, path="."):
-        entity_data = OrderedDict()
-        entity_data["name"] = self.root_entity.get_name()
-        entity_data["core_attribute"] = self.root_entity.attribute_to_list()
 
     def import_system_entity_structure(self, path, name):
         json_data = open(os.path.join(path, name)).read()

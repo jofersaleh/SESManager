@@ -41,8 +41,8 @@ class Entity(object):
     def get_attribute_list(self):
         return self.attribute_list
 
-    def serialize_core_attribute(self):
-        return self.core_attribute.serialize()
+ #   def serialize_core_attribute(self):
+ #       return self.core_attribute.serialize()
 
     def deserialize_core_attribute(self, jsons):
         for json in jsons:
