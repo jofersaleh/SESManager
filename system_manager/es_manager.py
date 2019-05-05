@@ -200,7 +200,7 @@ class EntityManager(object):
                 inptnum = int(inptnum)
                 if inptnum == 0:
                     break
-                for i in range(inptnum-1):
+                for i in range(inptnum):
                         instnm = "in"+str(i+1)
                         msa.insert_input_port(instnm)
                 Flag = False
@@ -211,7 +211,7 @@ class EntityManager(object):
                 outptnum = int(outptnum)
                 if outptnum == 0:
                     break
-                for i in range(outptnum-1):
+                for i in range(outptnum):
                     outstnm = "out"+str(i+1)
                     msa.insert_output_port(outstnm)
                 Flag = False
@@ -244,7 +244,7 @@ class EntityManager(object):
         ask = self.YN_Choice_menu("Did you want to make input port?")
         if ask == True:
             Flag = True
-            i = 0
+            i = 1
             while Flag:
                 print(list_entity_nm)
                 input_entity = input("choose entity to connect with input port")
@@ -262,7 +262,7 @@ class EntityManager(object):
         ask = self.YN_Choice_menu("Did you want to make output port?")
         if ask == True:
             Flag = True
-            i = 0
+            i = 1
             while Flag:
                 print(list_entity_nm)
                 output_entity = input("choose entity to connect with output port")
@@ -310,45 +310,122 @@ class EntityManager(object):
 
     def update_operation(self):
         # TODO implement
-
+        esm = EntityManager()
+        entity = esm.create_entity_structure()
         self.list_up_entity()
-        selected = input("Select Entity to update:")
-        if selected not in self.model_db:
-            print("[ERR] Entity Not Found")
-            pass
-        model = self.import_system_entity_structure(self.model_db[selected])
-        print(model)
-
-        ###make menu to modify entities##
-
-        print("What did you want to modify entity")
-        print("1. Add Entity")
-        print("2. delete Entity")
-        print("3. modify Entity")
-        print("0. Exit")
-
-        # crteate new entities
-        nmn = input("Type name of Entities to create:")
-
-
-
+        while True:
+            selected = input("Select Entity to update:")
+            if selected not in self.model_db:
+                print("[ERR] Entity Not Found")
+            else:
+                break
+        #load datafile
         json_data = open(self.model_db[selected]).read()
         data = json.loads(json_data)
-
+        aft_msa = ModelStructuralAttribute()
+        entity.set_name(selected)
         core = data["core_attribute"]
-        if core["type"] == "STRUCTURAL":
-            lst = core["entities"]
-            lst.append([crte_enti])
-        jsnlst = json.dumps(lst)
-        print(jsnlst)
-        core["entities"] = jsnlst
-        data["core_attribute"] = core
+        for ntnm, arti, opt in core["entities"]:
+            aft_msa.insert_entity(ntnm, arti, opt)
+        aft_msa.input_ports = core["input_ports"]
+        aft_msa.output_ports = core["output_ports"]
+        aft_msa.external_input_map = core["external_input"]
+        aft_msa.external_output_map = core["external_output"]
+        aft_msa.internal_coupling_map_entity = core["internal"]
+
+        ###make menu to modify entities##
+        loop = True
+        while loop:
+            print("What did you want to modify entity")
+            print("1. Add Entity")
+            print("2. delete Entity")
+            print("3. modify Entity")
+            print("4. modify Port")
+            print("0. Exit")
+            _menu = input(">>")
+            if self.Chk_int(_menu):
+                _menu = int(_menu)
+                if _menu == 1:
+                    aft_msa = self.update_opt_addenti(aft_msa)
+                    pass
+                elif _menu == 2:
+                    aft_msa = self.update_opt_deletenti(aft_msa)
+                    pass
+                elif _menu == 3:
+                    pass
+                elif _menu == 4:
+                    pass
+                elif _menu == 0:
+                    loop = False
+                else:
+                    print("please type again")
+
+        #update entity
+        entity.set_core_attribute(aft_msa)
+        esm.create_system(entity)
+        esm.export_system_entity_structure(entity, self.entity_path, selected+".json")
 
 
-        #modify original entities
+    def update_opt_addenti(self, aft_msa):
+        #1. adding entity
+        modi_msa = ModelStructuralAttribute()
+        Flag = True
+        while Flag:
+            ntnm = input("What is the entity name?")
+            loop=True
+            while loop:
+                arti = input("Type number of arity")
+                if self.Chk_int(arti):
+                    arti = int(arti)
+                    loop = False
+            loop = True
+            opt = 0
+            while loop:
+                opt = input("is this entity optional? (y/n)")
+                if opt == "y":
+                    opt = True
+                    loop = False
+                elif opt == "n":
+                    opt = False
+                    loop = False
+                else:
+                    print("Please type only y or n")
+            modi_msa.insert_entity(ntnm, arti, opt)
+            Flag = self.YN_Choice_menu("Did you need more entity?")
+
+        lst = []
+        for addentiy in modi_msa.entity_list:
+            lst.append(addentiy)
+        for ntnm, arti, opt in lst:
+            aft_msa.insert_entity(ntnm, arti, opt)
+        return aft_msa
+
+    def update_opt_deletenti(self, aft_msa):
+        lst_enti = []
+        print(aft_msa.entity_list)
+        for entity, arity, opt in aft_msa.entity_list:
+            lst_enti.append(entity)
+        Flag = True
+        while Flag:
+            want_delete = input("Type name of entity you want to delete")
+            to_delete = []
+            if want_delete in lst_enti:
+                for entity, arity, opt in aft_msa.entity_list:
+                    if entity == want_delete:
+                        to_delete.append(entity)
+                        to_delete.append(arity)
+                        to_delete.append(opt)
+                        break
+                aft_msa.remove_entity(to_delete)
+                lst_enti.remove(want_delete)
+            else:
+                print("no suc thing entity that you type  "+want_delete)
+            Flag = self.YN_Choice_menu("Did you want to delete more?")
+
+        return aft_msa
 
 
-        pass
+
 
     def delete_operation(self):
         self.list_up_entity()
