@@ -43,12 +43,12 @@ class EntityManager(object):
         entity_data = OrderedDict()
         entity_data["name"] = _entity.get_name()
         entity_data["core_attribute"] = _entity.get_core_attribute().serialize()
-
+        entity_data["optional_attributes"] = _entity.serialize_attributes()
         f = open(os.path.join(_path, name), "w")
         f.write(json.dumps(entity_data, ensure_ascii=False, indent="\t"))
         f.close()
 
-    def import_system_entity_structure(self, path, name):
+    '''    def import_system_entity_structure(self, path, name):
         json_data = open(os.path.join(path, name)).read()
         data = json.loads(json_data)
         name = data["name"]
@@ -61,7 +61,7 @@ class EntityManager(object):
             entity.set_core_attribute(attr)
             return entity
 
-        return None
+        return None'''
 
     def import_system_entity_structure(self, _path):
         json_data = open(_path).read()
@@ -70,13 +70,15 @@ class EntityManager(object):
         entity = self.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "ASPECT":
-            attr = ModelStructuralAttribute()
-            attr.deserialize(core)
-            entity.set_core_attribute(attr)
-            return entity
 
-        return None
+        attr = ModelStructuralAttribute()
+        attr.deserialize(core)
+        entity.set_core_attribute(attr)
+
+        entity.deserialize_attributes(data["optional_attributes"])
+
+        return entity
+
 
     @staticmethod
     def static_import_system_entity_structure(_path):
@@ -87,13 +89,14 @@ class EntityManager(object):
         entity = EntityManager.create_entity_structure(name)
 
         core = data["core_attribute"]
-        if core["type"] == "ASPECT":
-            attr = ModelStructuralAttribute()
-            attr.deserialize(core)
-            entity.set_core_attribute(attr)
-            return entity
+        #if core["type"] == "ASPECT":
+        attr = ModelStructuralAttribute()
+        attr.deserialize(core)
+        entity.set_core_attribute(attr)
 
-        return None
+        entity.deserialize_attributes(data["optional_attributes"])
+
+        return entity
 
     def select_root_entity(self, _name):
         """
@@ -462,3 +465,4 @@ class EntityManager(object):
             else:
                 loop = False
                 pass
+

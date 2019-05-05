@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 class RuntimeAttribute(Attribute):
     def __init__(self):
-        super(Attribute, self).__init__("RUNTIME")
+        super(RuntimeAttribute, self).__init__("RUNTIME")
         self.entity_list = []
         self.entity_model_map = {}
         self.entity_domain_map = {}
@@ -29,7 +29,7 @@ class RuntimeAttribute(Attribute):
 
     def serialize(self):
         json_obj = OrderedDict()
-        json_obj["type"] = "RUNTIME"
+        # json_obj["type"] = "RUNTIME"
         json_obj["entities"] = self.retrieve_entities()
         json_obj["model_map"] = self.retrieve_model_map()
         json_obj["domain_map"] = self.retrieve_domain_map()

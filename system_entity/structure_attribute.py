@@ -106,7 +106,7 @@ class ModelStructuralAttribute(ModelAttribute):
 
     def serialize(self):
         json_obj = OrderedDict()
-        json_obj["type"] = "ASPECT"
+        # json_obj["type"] = "ASPECT"
         json_obj["entities"] = self.retrieve_entities()
         json_obj["input_ports"] = self.retrieve_input_ports()
         json_obj["output_ports"] = self.retrieve_output_ports()
