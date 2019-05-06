@@ -359,9 +359,9 @@ class EntityManager(object):
         while loop:
             print("What did you want to modify entity")
             print("1. Add Entity")
-            print("2. delete Entity")
-            print("3. modify Entity")
-            print("4. modify Port")
+            print("2. Delete Entity")
+            print("3. Modify Entity")
+            print("4. Modify Port")
             print("0. Exit")
             _menu = input(">>")
             if self.Chk_int(_menu):
@@ -373,18 +373,22 @@ class EntityManager(object):
                     aft_msa = self.update_opt_deletenti(aft_msa)
                     pass
                 elif _menu == 3:
+                    aft_msa = self.update_opt_modienti(aft_msa, selected)
                     pass
                 elif _menu == 4:
+                    #aft_msa = self.update_opt_modiport(aft_msa)
+                    self.update_opt_modiport(aft_msa)
                     pass
                 elif _menu == 0:
                     loop = False
                 else:
                     print("please type again")
+            #update entity
+            entity.set_core_attribute(aft_msa)
+            esm.create_system(entity)
+            esm.export_system_entity_structure(entity, self.entity_path, selected+".json")
 
-        #update entity
-        entity.set_core_attribute(aft_msa)
-        esm.create_system(entity)
-        esm.export_system_entity_structure(entity, self.entity_path, selected+".json")
+
 
 
     def update_opt_addenti(self, aft_msa):
@@ -422,10 +426,12 @@ class EntityManager(object):
         return aft_msa
 
     def update_opt_deletenti(self, aft_msa):
+        #make list to check
         lst_enti = []
         print(aft_msa.entity_list)
         for entity, arity, opt in aft_msa.entity_list:
             lst_enti.append(entity)
+        #process
         Flag = True
         while Flag:
             want_delete = input("Type name of entity you want to delete")
@@ -440,13 +446,68 @@ class EntityManager(object):
                 aft_msa.remove_entity(to_delete)
                 lst_enti.remove(want_delete)
             else:
-                print("no suc thing entity that you type  "+want_delete)
+                print("no such thing entity that you type  "+want_delete)
             Flag = self.YN_Choice_menu("Did you want to delete more?")
 
         return aft_msa
 
+    def update_opt_modienti(self, aft_msa, selected):
+        #make list to check
+        lst_enti = []
+        for entity, arity, opt in aft_msa.entity_list:
+            lst_enti.append(entity)
+        #process
+        model = self.import_system_entity_structure(self.model_db[selected])
+        print(model)
+        Flag = True
+        while Flag:
+            want_modify = input("Type name of entity you want to modify")
+            if want_modify in lst_enti:
+                _menu_number = self.update_opt_modienti_menu()
+                if _menu_number == "1":
+                    modi_name = input("Type name")
+                    aft_msa.entity_list[lst_enti.index(want_modify)][0] = modi_name
+                elif _menu_number == "2":
+                    modi_arti = input("Type attribute")
+                    aft_msa.entity_list[lst_enti.index(want_modify)][1] = modi_arti
+                elif _menu_number == "3":
+                    modi_opt = self.YN_Choice_menu("Is it optional?")
+                    aft_msa.entity_list[lst_enti.index(want_modify)][2] = modi_opt
+                elif _menu_number == "0":
+                    break
+            else:
+                print("no such thing entity that you type  "+want_modify)
+            Flag = self.YN_Choice_menu("Did you want to modify more?")
 
+        return aft_msa
 
+    def update_opt_modienti_menu(self):
+        print("What process did you want to modify with this entity?")
+        print("1.name")
+        print("2. attribute")
+        print("3. optional")
+        print("0. Exit")
+        selected = input(">>")
+        return selected
+
+    def update_opt_modiport(self, aft_msa):
+        print(aft_msa.input_ports)
+        print(aft_msa.output_ports)
+        print(aft_msa.external_input_map)
+        print(aft_msa.external_output_map)
+        print(aft_msa.internal_coupling_map_entity)
+        _menu_number = self.update_opt_modiport_menu()
+        pass
+
+    def update_opt_modiport_menu(self):
+        print("What did you want to modify?")
+        print("1.insert port")
+        print("2.output port")
+        print("3.external port")
+        print("4.internal port")
+        print("0. Exit")
+        selected = input(">>")
+        return selected
 
     def delete_operation(self):
         self.list_up_entity()
