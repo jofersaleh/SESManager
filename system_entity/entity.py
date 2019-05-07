@@ -53,8 +53,6 @@ class Entity(object):
  #       return self.core_attribute.serialize()
 
     def deserialize_attributes(self, jsons):
-        print(jsons["RUNTIME"])
-        pass
         for key, json in jsons.items():
             if key == "RUNTIME":
                 ra = RuntimeAttribute()
