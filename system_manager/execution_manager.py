@@ -134,10 +134,12 @@ class ExecutionManager(object):
             for entity in entity_list:
                 with open(model_map[entity], 'rb') as f:
                     instance_map[entity] = dill.load(f)
-                with open(domain_map[entity], 'rb') as f:
-                    instance_map[entity].domain_obj = dill.load(f)
+                if entity in domain_map:
+                    with open(domain_map[entity], 'rb') as f:
+                        instance_map[entity].domain_obj = dill.load(f)
 
                 instance_map[entity].set_engine_name(es.get_name())
+                print(instance_map[entity].get_engine_name())
                 SystemSimulator().get_engine(es.get_name()).register_entity(instance_map[entity])
 
         ic_map = es.get_core_attribute().retrieve_internal_coupling()

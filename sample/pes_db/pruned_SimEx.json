@@ -1,7 +1,6 @@
 {
 	"name": "pruned_SimEx",
 	"core_attribute": {
-		"type": "ASPECT",
 		"entities": [
 			[
 				"Human",
@@ -28,6 +27,19 @@
 					]
 				]
 			]
+		}
+	},
+	"optional_attributes": {
+		"RUNTIME": {
+			"entities": [
+				"Human",
+				"Receiver"
+			],
+			"model_map": {
+				"Human": "./sample/model_db/Human.pkl",
+				"Receiver": "./sample/model_db/Receiver.pkl"
+			},
+			"domain_map": {}
 		}
 	}
 }

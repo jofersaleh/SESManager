@@ -92,6 +92,7 @@ class ActionObject(object):
         for event in self.event_list:
             if event == 1:
                 print("!")
+                SystemSimulator.exec_simulation_instance("./sample/pruned_SimEx.simx")
                 command = 1
             elif event == 2:
                 print("@@")
