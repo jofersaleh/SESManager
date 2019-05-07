@@ -92,24 +92,6 @@ class ModelStructuralAttribute(ModelAttribute):
         src_entity, src_port = _src
         dst_entity, dst_port = _dst
 
-        if src_entity == "":
-            if src_port in self.external_input_map:
-                self.external_input_map[src_port].append(_dst)
-            else:
-                self.external_input_map[src_port] = [_dst]
-        elif dst_entity == "":
-            if dst_port in self.external_output_map:
-                self.external_output_map[dst_port].append(_src)
-            else:
-                self.external_output_map[dst_port] = [_src]
-        else:
-            if src in self.internal_coupling_map_tuple:
-                self.internal_coupling_map_tuple[_src].append(_dst)
-                self.internal_coupling_map_entity[src_entity].append((src_port, _dst))
-            else:
-                self.internal_coupling_map_tuple[_src] = [_dst]
-                self.internal_coupling_map_entity[src_entity]=[(src_port, _dst)]
-
         # TODO: Implement
         pass
 

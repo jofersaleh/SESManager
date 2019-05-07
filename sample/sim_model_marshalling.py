@@ -28,8 +28,8 @@ class Human(BehaviorModelExecutor):
         self.x += self.spd
         self.y += self.spd
 
-        #temp = "[%f] (%d, %d)" % (SystemSimulator().get_engine(self.engine_name).get_global_time(), self.x, self.y)
-        #print(temp)
+        temp = "[%f] (%d, %d)" % (SystemSimulator().get_engine(self.engine_name).get_global_time(), self.x, self.y)
+        print(temp)
         msg = SysMessage(self.get_name(), "hello")
         print(str(datetime.datetime.now()) + " Human Object:")
         msg.insert("I am")
@@ -56,13 +56,13 @@ class Receiver(BehaviorModelExecutor):
 
     def ext_trans(self,port, msg):
         data = msg.retrieve()
-        print(str(datetime.datetime.now()) +  " " + str(data[0]))
-        #temp = "[%f] %s" % (SystemSimulator().get_engine(self.engine_name).get_global_time(), str(data[0]))
-        #print(temp)
+        #print(str(datetime.datetime.now()) +  " " + str(data[0]))
+        temp = "[%f] %s" % (SystemSimulator().get_engine(self.engine_name).get_global_time(), str(data[0]))
+        print(temp)
 
     def output(self):
-        #temp = "[%f] %s" % (SystemSimulator().get_engine(self.engine_name).get_global_time(), "Human Receiver Object: Move")
-        #print(temp)
+        temp = "[%f] %s" % (SystemSimulator().get_engine(self.engine_name).get_global_time(), "Human Receiver Object: Move")
+        print(temp)
         return None
 
     def int_trans(self):
