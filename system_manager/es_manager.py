@@ -321,7 +321,7 @@ class EntityManager(object):
                         ex_output_port = "out" + str(num_port)
                         loop = True
                         while loop:
-                            print("Number of input port: ", outptnum)
+                            print("Number of output port: ", outptnum)
                             num_port = input("Type the 'number' of output port that you will use for "+output_entity + " output port")
                             num_port, loop = self.Num_Choice_menu(num_port, outptnum)
                         output_port = "out" + str(num_port)
@@ -629,7 +629,7 @@ class EntityManager(object):
                                         loop = False
                                     else:
                                         print("there is no such " + output_port + " please type again.")
-                                aft_msa.insert_coupling(("", port_name_external), (output_entity, output_port))
+                                aft_msa.insert_coupling((output_entity, output_port), ("", port_name_external))
                                 Flag = False
                             else:
                                 print("Not in a list. Please type again")
@@ -706,9 +706,43 @@ class EntityManager(object):
                             else:
                                 print("No such name " + port_name + "please type again.")
                     elif _sub_number == "3":
-                        pass
+                        print(aft_msa.external_input_map.keys())
+                        port_name = input("Type input port that you want to delete")
+                        if len(aft_msa.external_input_map.get(port_name)) == 1:
+                            aft_msa.remove_coupling(("", port_name), (aft_msa.external_input_map.get(port_name)[0][0],
+                                                                      aft_msa.external_input_map.get(port_name)[0][1]))
+                        else:
+                            print(aft_msa.external_input_map.values())
+                            enti_name = input("Type name the name of the entity")
+                            i = 0
+                            T = True
+                            while T:
+                                _compared = aft_msa.external_input_map.get(port_name)[i][0]
+                                if _compared == enti_name:
+                                    T = False
+                                else:
+                                    i += 1
+                            aft_msa.remove_coupling(("", port_name), (aft_msa.external_input_map.get(port_name)[i][0],
+                                                                      aft_msa.external_input_map.get(port_name)[i][1]))
                     elif _sub_number == "4":
-                        pass
+                        print(aft_msa.external_output_map.keys())
+                        port_name = input("Type output port that you want to delete")
+                        if len(aft_msa.external_output_map.get(port_name)) == 1:
+                            aft_msa.remove_coupling((aft_msa.external_output_map.get(port_name)[0][0],
+                                                     aft_msa.external_output_map.get(port_name)[0][1]), ("", port_name))
+                        else:
+                            print(aft_msa.external_output_map.values())
+                            enti_name = input("Type name the name of the entity")
+                            i = 0
+                            T = True
+                            while T:
+                                _compared = aft_msa.external_output_map.get(port_name)[i][0]
+                                if _compared == enti_name:
+                                    T = False
+                                else:
+                                    i += 1
+                            aft_msa.remove_coupling(("", port_name), (aft_msa.external_output_map.get(port_name)[i][0],
+                                                                      aft_msa.external_output_map.get(port_name)[i][1]))
                     elif _sub_number == "5":
                         pass
                     elif _sub_number == "0":
