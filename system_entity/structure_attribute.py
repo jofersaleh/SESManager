@@ -69,24 +69,29 @@ class ModelStructuralAttribute(ModelAttribute):
     def insert_coupling(self, src, dst):
         src_entity, src_port = src
         dst_entity, dst_port = dst
+        dst_lst = [dst_entity, dst_port]
+        src_lst = [src_entity, src_port]
 
         if src_entity == "":
             if src_port in self.external_input_map:
-                self.external_input_map[src_port].append(dst)
+                self.external_input_map[src_port].append(dst_lst)
             else:
-                self.external_input_map[src_port] = [dst]
+                self.external_input_map[src_port] = [dst_lst]
         elif dst_entity == "":
             if dst_port in self.external_output_map:
-                self.external_output_map[dst_port].append(src)
+                self.external_output_map[dst_port].append(src_lst)
             else:
-                self.external_output_map[dst_port] = [src]
+                self.external_output_map[dst_port] = [src_lst]
         else:
             if src in self.internal_coupling_map_tuple:
                 self.internal_coupling_map_tuple[src].append(dst)
-                self.internal_coupling_map_entity[src_entity].append((src_port, dst))
+                self.internal_coupling_map_entity[src_entity].append([src_port, dst_lst])
             else:
                 self.internal_coupling_map_tuple[src] = [dst]
-                self.internal_coupling_map_entity[src_entity]=[(src_port, dst)]
+                if src_entity in self.internal_coupling_map_entity.keys():
+                    self.internal_coupling_map_entity[src_entity].append([src_port, dst_lst])
+                else:
+                    self.internal_coupling_map_entity[src_entity]=[[src_port, dst_lst]]
 
     def remove_coupling(self, src, dst):
         # TODO: Implement
@@ -105,11 +110,11 @@ class ModelStructuralAttribute(ModelAttribute):
             else:
                 self.external_output_map.pop(dst_port)
         else:
-            if len(self.internal_coupling_map_tuple.get(src_lst)) > 1:
-                self.internal_coupling_map_tuple[src_lst].remove(dst_lst)
-                self.internal_coupling_map_entity[src_entity].remove((src_port, dst_lst))
+            if len(self.internal_coupling_map_tuple.get(src)) > 1:
+                self.internal_coupling_map_tuple[src].remove(dst)
+                self.internal_coupling_map_entity[src_entity].remove([src_port, dst_lst])
             else:
-                self.internal_coupling_map_tuple.pop(src_lst)
+                self.internal_coupling_map_tuple.pop(src)
                 self.internal_coupling_map_entity.pop(src_entity)
 
     def retrieve_external_input_coupling(self):
