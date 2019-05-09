@@ -381,7 +381,6 @@ class EntityManager(object):
         pass
 
     def update_operation(self):
-        # TODO implement
         esm = EntityManager()
         entity = esm.create_entity_structure()
         self.list_up_entity()
@@ -550,10 +549,10 @@ class EntityManager(object):
         return selected
 
     def update_opt_modiport(self, aft_msa):
-        print(aft_msa.input_ports)
-        print(aft_msa.output_ports)
-        print("external: ", aft_msa.external_input_map)
-        print("external: ", aft_msa.external_output_map)
+        print("input port: ", aft_msa.input_ports)
+        print("output port: ", aft_msa.output_ports)
+        print("external input: ", aft_msa.external_input_map)
+        print("external output: ", aft_msa.external_output_map)
         print("internal: ", aft_msa.internal_coupling_map_entity)
         print("internal: ", aft_msa.internal_coupling_map_tuple)
 
@@ -690,19 +689,103 @@ class EntityManager(object):
                             print(aft_msa.input_ports)
                             port_name = input("Type port that you want to delete")
                             if port_name in aft_msa.input_ports:
-                                aft_msa.input_ports.pop(port_name)
-                                #need to remove coupling
+                                aft_msa.input_ports.remove(port_name)
+                                if port_name in aft_msa.external_input_map.keys():
+                                    aft_msa.external_input_map.pop(port_name)
+                                pop_lst = []
+                                for key, values in aft_msa.external_input_map.items():
+                                    rmv_lst = []
+                                    i = len(values)
+                                    for item in values:
+                                        if item[1] == port_name:
+                                            if i == 1:
+                                                pop_lst.append(key)
+                                            else:
+                                                rmv_lst.append(item)
+                                                i -= 1
+                                    for item in rmv_lst:
+                                        values.remove(item)
+                                for key in pop_lst:
+                                    aft_msa.external_input_map.pop(key)
+                                pop_lst = []
+                                for key, values in aft_msa.internal_coupling_map_entity.items():
+                                    rmv_lst = []
+                                    i = len(values)
+                                    for item in values:
+                                        if item[1][1] == port_name:
+                                            if i == 1:
+                                                pop_lst.append(key)
+                                            else:
+                                                rmv_lst.append(item)
+                                                i -= 1
+                                    for item in rmv_lst:
+                                        values.remove(item)
+                                for key in pop_lst:
+                                    aft_msa.internal_coupling_map_entity.pop(key)
+                                pop_lst = []
+                                for key, values in aft_msa.internal_coupling_map_tuple.items():
+                                    rmv_lst = []
+                                    i = len(values)
+                                    for item in values:
+                                        if item[1] == port_name:
+                                            if len(values) == 1:
+                                                pop_lst.append(key)
+                                            else:
+                                                rmv_lst.append(item)
+                                                i -= 1
+                                    for item in rmv_lst:
+                                        values.remove(item)
+                                for key in pop_lst:
+                                    aft_msa.internal_coupling_map_tuple.pop(key)
+                                Flag = False
                             else:
                                 print("No such name " + port_name + "please type again.")
-
                     elif _sub_number == "2":
                         Flag = True
                         while Flag:
                             print(aft_msa.output_ports)
                             port_name = input("Type port that you want to delete")
                             if port_name in aft_msa.output_ports:
-                                aft_msa.output_ports.pop(port_name)
-                                # need to remove coupling
+                                aft_msa.output_ports.remove(port_name)
+                                if port_name in aft_msa.external_output_map.keys():
+                                    aft_msa.external_output_map.pop(port_name)
+                                pop_lst = []
+                                for key, values in aft_msa.external_output_map.items():
+                                    rmv_lst = []
+                                    i = len(values)
+                                    for item in values:
+                                        if item[1] == port_name:
+                                            if i == 1:
+                                                pop_lst.append(key)
+                                            else:
+                                                rmv_lst.append(item)
+                                                i -= 1
+                                    for item in rmv_lst:
+                                        values.remove(item)
+                                for key in pop_lst:
+                                    aft_msa.external_output_map.pop(key)
+                                pop_lst = []
+                                for key, values in aft_msa.internal_coupling_map_entity.items():
+                                    rmv_lst = []
+                                    i = len(values)
+                                    for item in values:
+                                        if item[0] == port_name:
+                                            if i == 1:
+                                                pop_lst.append(key)
+                                            else:
+                                                rmv_lst.append(item)
+                                                i -= 1
+                                    for item in rmv_lst:
+                                        values.remove(item)
+                                for key in pop_lst:
+                                    aft_msa.internal_coupling_map_entity.pop(key)
+                                pop_lst = []
+                                for key, values in aft_msa.internal_coupling_map_tuple.items():
+                                    if key[1] == port_name:
+                                        pop_lst.append(key)
+                                for key in pop_lst:
+                                    aft_msa.internal_coupling_map_tuple.pop(key)
+                                Flag = False
                             else:
                                 print("No such name " + port_name + "please type again.")
                     elif _sub_number == "3":
@@ -744,7 +827,12 @@ class EntityManager(object):
                             aft_msa.remove_coupling(("", port_name), (aft_msa.external_output_map.get(port_name)[i][0],
                                                                       aft_msa.external_output_map.get(port_name)[i][1]))
                     elif _sub_number == "5":
-                        pass
+                        print(aft_msa.internal_coupling_map_tuple)
+                        port_name1 = input("Type output port that you want to delete")
+                        port_name2 = input("Type input port that you want to delete")
+                        enti_name1 = input("Type output entity that you want to delete")
+                        enti_name2 = input("Type input entity that you want to delete")
+                        aft_msa.remove_coupling((enti_name1, port_name1), (enti_name2, port_name2))
                     elif _sub_number == "0":
                         loop = False
                     else:
@@ -754,9 +842,50 @@ class EntityManager(object):
                 while loop:
                     _sub_number = self.update_opt_modiport_changename()
                     if _sub_number == "1":
-                        pass
+                        print(aft_msa.input_ports)
+                        bef_name = input("Type name of input port that you want to change")
+                        aft_name = input("Type the new name of port")
+                        if bef_name in aft_msa.input_ports:
+                            aft_msa.input_ports[aft_msa.input_ports.index(bef_name)] = aft_name
+                            if bef_name in aft_msa.external_input_map.keys():
+                                aft_msa.external_input_map[aft_name] = aft_msa.external_input_map.pop(bef_name)
+                            for item in aft_msa.external_input_map.values():
+                                for i in range(len(item)):
+                                    if item[i][1] == bef_name:
+                                        item[i][1] = aft_name
+                            for item in aft_msa.internal_coupling_map_entity.values():
+                                for i in range(len(item)):
+                                    if item[i][1][1] == bef_name:
+                                        item[i][1][1] = aft_name
+                            for item in aft_msa.internal_coupling_map_tuple.values():
+                                for i in range(len(item)):
+                                    if bef_name == item[i][1]:
+                                        e = item[i][0]
+                                        item[i] = (e, aft_name)
+                        else:
+                            print("No such " + bef_name + "in the port")
                     elif _sub_number == "2":
-                        pass
+                        print(aft_msa.output_ports)
+                        bef_name = input("Type name of input port that you want to change")
+                        aft_name = input("Type the new name of port")
+                        if bef_name in aft_msa.output_ports:
+                            aft_msa.output_ports[aft_msa.output_ports.index(bef_name)] = aft_name
+                            if bef_name in aft_msa.external_output_map.keys():
+                                aft_msa.external_output_map[aft_name] = aft_msa.external_output_map.pop(bef_name)
+                            for item in aft_msa.external_output_map.values():
+                                for i in range(len(item)):
+                                    if item[i][1] == bef_name:
+                                        item[i][1] = aft_name
+                            for item in aft_msa.internal_coupling_map_entity.values():
+                                for i in range(len(item)):
+                                    if item[i][0] == bef_name:
+                                        item[i][0] = aft_name
+                            for item in aft_msa.internal_coupling_map_tuple.keys():
+                                for i in range(int(len(item)/2)):
+                                    if bef_name == item[i*2+1]:
+                                        aft_msa.internal_coupling_map_tuple[item[i], aft_name] = aft_msa.internal_coupling_map_tuple.pop(item)
+                        else:
+                            print("please type again")
                     elif _sub_number == "0":
                         loop = False
                     else:
