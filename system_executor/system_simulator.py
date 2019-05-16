@@ -16,7 +16,7 @@ class SystemSimulator(object):
 
     @staticmethod
     def register_engine(sim_name, time_step=1):
-        SystemSimulator._engine[sim_name] = SysExecutor(time_step)
+        SystemSimulator._engine[sim_name] = SysExecutor(time_step, sim_name)
 
     @staticmethod
     def get_engine_map():
@@ -27,10 +27,15 @@ class SystemSimulator(object):
         return SystemSimulator._engine[sim_name]
 
     @staticmethod
+    def is_terminated(sim_name):
+        return SystemSimulator._engine[sim_name].is_terminated()
+
+    @staticmethod
     def exec_simulation_instance(instance_path):
         sim_instance = None
         with open(instance_path, 'rb') as f:
             sim_instance = dill.load(f)
+            SystemSimulator._engine[sim_instance.get_name()] = sim_instance
             sim_instance.simulate()
         pass
 

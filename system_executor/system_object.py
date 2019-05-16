@@ -21,3 +21,7 @@ class SysObject(object):
 
     def get_req_time(self):
         pass
+
+    def __lt__(self, other):
+        return self.__object_id < other.__object_id
+
