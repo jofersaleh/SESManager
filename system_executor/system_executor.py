@@ -2,19 +2,27 @@
     Light-weighted Simulation Engine
 """
 
-import datetime
+
 from collections import deque
+import heapq
+import copy
+
+from system_entity.definition import *
 from system_executor.default_message_catcher import *
+from model_base.behavior_model import *
 
 
-class SysExecutor(object):
+class SysExecutor(SysObject, BehaviorModel):
 
     EXTERNAL_SRC = "SRC"
     EXTERNAL_DST = "DST"
 
-    def __init__(self, time_step=1):
+    def __init__(self, _time_step, _sim_name='default'):
+        BehaviorModel.__init__(self, _sim_name)
+
         self.global_time = 0
-        self.time_step = time_step
+        self.target_time = 0
+        self.time_step = _time_step  # time_step may changed? - cbchoi
 
         # dictionary for waiting simulation objects
         self.waiting_obj_map = {}
@@ -22,16 +30,21 @@ class SysExecutor(object):
         self.active_obj_map = {}
         # dictionary for object to ports
         self.port_map = {}
-        self.port_map_wName = []
+        #self.port_map_wName = []
 
         self.min_schedule_item = deque()
 
         self.sim_init_time = datetime.datetime.now()
 
-        self.mode = "Simulation"
-        self.eval_time = 0
+#        self.eval_time = 0
 
         self.register_entity(DefaultMessageCatcher(0, Infinite, "dc", "default"))
+
+        self.simulation_mode = SimulationMode.SIMULATION_IDLE
+
+        # External Interface
+        self.input_event_queue = []
+        self.output_event_queue = deque()
 
     # retrieve global time
     def get_global_time(self):
@@ -72,9 +85,13 @@ class SysExecutor(object):
                 self.min_schedule_item.remove(agent)
 
     def coupling_relation(self, src_obj, out_port, dst_obj, in_port):
-        self.port_map[(src_obj, out_port)] = (dst_obj, in_port)
-        self.port_map_wName.append((src_obj.get_name(), out_port, dst_obj.get_name(), in_port))
+        if (src_obj, out_port) in self.port_map:
+            self.port_map[(src_obj, out_port)].append((dst_obj, in_port))
+        else:
+            self.port_map[(src_obj, out_port)] = [(dst_obj, in_port)]
+            # self.port_map_wName.append((src_obj.get_name(), out_port, dst_obj.get_name(), in_port))
 
+    '''
     def update_coupling_relation(self):
         self.port_map.clear()
 
@@ -93,41 +110,50 @@ class SysExecutor(object):
                     dst_obj = self.min_schedule_item[q]
             in_port = self.port_map_wName[i][3]
             self.port_map[(src_obj, out_port)] = (dst_obj, in_port)
+    '''
 
     def output_handling(self, obj, msg):
         if msg is not None:
-            if (obj, msg.get_dst()) not in self.port_map:
-                self.port_map[(obj, msg.get_dst())] = (self.active_obj_map["dc"], "uncaught")
+            pair = (obj, msg.get_dst())
+            if pair not in self.port_map:
+                self.port_map[pair] = (self.active_obj_map["dc"], "uncaught")
 
-            destination = self.port_map[(obj, msg.get_dst())]
-            if destination is None:
-                print("Destination Not Found")
-                raise AssertionError
+            for port_pair in self.port_map[pair]:
+                destination = port_pair
+                if destination is None:
+                    print("Destination Not Found")
+                    raise AssertionError
 
-            # Receiver Message Handling
-            destination[0].ext_trans(destination[1], msg)
-            # Receiver Scheduling
-            # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
-            destination[0].set_req_time(self.global_time)
-            # self.min_schedule_item.pop()
-            # self.min_schedule_item.append((destination[0].time_advance() + self.global_time, destination[0]))
-
-    def set_eval_time(self, time):
-        self.eval_time = time
+                if destination[0] is None:
+                    self.output_event_queue.append((self.global_time, msg.retrieve()))
+                else:
+                    # Receiver Message Handling
+                    destination[0].ext_trans(destination[1], msg)
+                    # Receiver Scheduling
+                    # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
+                    destination[0].set_req_time(self.global_time)
+                    # self.min_schedule_item.pop()
+                    # self.min_schedule_item.append((destination[0].time_advance() + self.global_time, destination[0]))
 
     def init_sim(self):
-        self.global_time = min(self.waiting_obj_map)
-        for obj in self.active_obj_map.items():
-            if obj[1].time_advance() < 0: # exception handling for parent instance
-                print("You should override the time_advanced function")
-                raise AssertionError
+        self.simulation_mode = SimulationMode.SIMULATION_RUNNING
 
-            obj.set_req_time(self.global_time)
-            self.min_schedule_item.append(obj)
+        if self.active_obj_map is None:
+            self.global_time = min(self.waiting_obj_map)
+
+        if not self.min_schedule_item:
+            for obj in self.active_obj_map.items():
+                if obj[1].time_advance() < 0: # exception handling for parent instance
+                    print("You should override the time_advanced function")
+                    raise AssertionError
+
+                obj[1].set_req_time(self.global_time)
+                self.min_schedule_item.append(obj[1])
 
     def schedule(self):
         # Agent Creation
         self.create_entity()
+        self.handle_external_input_event()
 
         tuple_obj = self.min_schedule_item.popleft()
 
@@ -152,11 +178,66 @@ class SysExecutor(object):
         # Agent Deletion
         self.destroy_entity()
 
-    def simulate(self):
+    def simulate(self, _time=Infinite):
+        # Termination Condition
+        self.target_time = self.global_time + _time
+
+        # Get minimum scheduled event
         self.init_sim()
-        while True:
+
+        while self.global_time < self.target_time:
             if not self.waiting_obj_map:
                 if self.min_schedule_item[0].get_req_time() == Infinite:
+                    self.simulation_mode = SimulationMode.SIMULATION_TERMINATED
                     break
 
             self.schedule()
+
+    def simulation_stop(self):
+        self.global_time = 0
+        self.target_time = 0
+        self.time_step = 1  # time_step may changed? - cbchoi
+
+        # dictionary for waiting simulation objects
+        self.waiting_obj_map = {}
+        # dictionary for active simulation objects
+        self.active_obj_map = {}
+        # dictionary for object to ports
+        self.port_map = {}
+        # self.port_map_wName = []
+
+        self.min_schedule_item = deque()
+
+        self.sim_init_time = datetime.datetime.now()
+
+#        self.eval_time = 0
+
+        self.register_entity(DefaultMessageCatcher(0, Infinite, "dc", "default"))
+
+    # External Event Handling - by cbchoi
+    def insert_external_event(self, _port, _msg, scheduled_time=0):
+        sm = SysMessage("SRC", _port)
+        if _port in self._input_ports:
+            heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
+        else:
+            # TODO Exception Handling
+            pass
+
+    def get_generated_event(self):
+        return self.output_event_queue
+
+    def handle_external_input_event(self):
+        event_list = [ev for ev in self.input_event_queue if ev[0] <= self.global_time]
+        for event in event_list:
+            self.output_handling(None, event[1])
+            heapq.heappop(self.input_event_queue)
+        pass
+
+    def handle_external_output_event(self):
+        event_lists = copy.deepcopy(self.output_event_queue)
+        self.output_event_queue.clear()
+        return event_lists
+
+    def is_terminated(self):
+        return self.simulation_mode == SimulationMode.SIMULATION_TERMINATED
+

@@ -95,8 +95,9 @@ class ExecutionManager(object):
             for entity in entity_list:
                 with open(model_map[entity], 'rb') as f:
                     instance_map[entity] = dill.load(f)
-                with open(domain_map[entity], 'rb') as f:
-                    instance_map[entity].domain_obj = dill.load(f)
+                if entity in domain_map:
+                    with open(domain_map[entity], 'rb') as f:
+                        instance_map[entity].domain_obj = dill.load(f)
 
                 instance_map[entity].set_engine_name(es.get_name())
                 SystemSimulator().get_engine(es.get_name()).register_entity(instance_map[entity])
@@ -147,7 +148,7 @@ class ExecutionManager(object):
             SystemSimulator().get_engine(es.get_name()).coupling_relation(
                 instance_map[model], tup[0][0], instance_map[tup[0][1][0]], tup[0][1][1])
 
-        _path = input(">> Enter Path: ")
+        _path = input(">> Enter simx Path: ")
         with open(os.path.join(os.path.abspath(_path), es.get_name() + ".simx"), 'wb') as f:
             dill.dump(SystemSimulator().get_engine(es.get_name()), f)
 

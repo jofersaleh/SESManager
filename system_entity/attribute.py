@@ -1,6 +1,7 @@
 from system_entity.definition import AttributeType
 
 
+
 class Attribute(object):
     def __init__(self, _type):
         self.attribute_type = AttributeType.resolve_type_from_str(_type)

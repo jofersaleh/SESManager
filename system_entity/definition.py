@@ -31,6 +31,16 @@ class AttributeType(Enum):
         else:
             return "UNKNOWN"
 
+
+# 2019.05.16 added by cbchoi
+class SimulationMode(Enum):
+    SIMULATION_IDLE = 0         # Simulation Engine is instantiated but simulation is not running
+    SIMULATION_RUNNING = 1      # Simulation Engine is instantiated, simulation is running
+    SIMULATION_TERMINATED = 2   # Simulation Engine is instantiated but simulation is terminated
+    SIMULATION_PAUSE = 3        # Simulation Engine is instantiated, simulation paused
+    SIMULATION_UNKNOWN = -1     # Simulation Engine went to abnormal state
+
+
 '''
 class AlternativeType(Enum):
     AND = 0
