@@ -6,6 +6,22 @@ class Remote_telegram():
         self.STATUS = ""
         self.operation_count = 0
         self.glob_lst = {}
+        self.entity_path = "./sample/ses_db"
+
+        self.sm = SystemManager("./sample/ses_db", "./sample/model_db", './sample/pes_db')
+
+        self.entity_db = []
+        self.model_db = {}
+        self.make_db()
+
+    def make_db(self):
+        self. entity_db = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
+        for _file in self.entity_db:
+            self.model_db[_file[:-5]] = os.path.join(os.path.abspath(self.entity_path), _file)
+
+    def clear_system(self):
+        self.glob_lst = {}
+        self.operation_count = 0
 
     def print_current_menu(self, update, current_num):
         if current_num == 1:
@@ -16,8 +32,16 @@ class Remote_telegram():
                 update.message.reply_text("4. Delete Entity")
                 update.message.reply_text("0. Exit")
             elif len(self.STATUS) == 2:
-                if self.STATUS == "11":
-                    self.create_option(update)
+                if self.STATUS[0] == "1":
+                    self.setting_step(update)
+        elif current_num == 2:
+            if len(self.STATUS) == 1:
+                #model management
+                update.message.reply_text(self.STATUS)
+            elif len(self.STATUS) == 2:
+                if self.STATUS[0] == "1":
+                    self.setting_step(update)
+
         elif current_num == "0":
             if self.STATUS == "":
                 update.message.reply_text("over")
@@ -27,6 +51,8 @@ class Remote_telegram():
     def setting_step(self, update):
         if self.STATUS == "11":
             self.create_option(update)
+        if self.STATUS == "12":
+            self.read_option(update)
 
     def YN_again_menu(self, update, restart_num):
         if update.message.text == "y":
@@ -58,8 +84,22 @@ class Remote_telegram():
             update.message.reply_text("please type int")
             return False
 
+    def print_entity_db(self,update):
+        fmt = "{0: <13}\t{1: <13}"
+        for k,v in self.model_db.items():
+            update.message.reply_text(fmt.format(k,v))
 
+    def print_entity_information(self, update, target):
+        fmt = "{0: <10}{name: <15}\t{arity: <5}\t{opt: <5}"
+        _str = ""
+        _str += "Name: " + target.entity_name + "\n"
+        _str += fmt.format("Entities: ", name="Name", arity="Arity", opt="Optional") + "\n"
+        entities = target.core_attribute.retrieve_entities()
 
+        for idx, entity in enumerate(entities):
+            _str += "\t" + fmt.format(idx+1, name=entity[0], arity=entity[1], opt=entity[2]) + "\n"
+
+        update.message.reply_text(_str)
 
 
     def create_option(self, update):
@@ -299,8 +339,60 @@ class Remote_telegram():
         elif self.operation_count == 23:
             print(self.glob_lst)
             if self.YN_again_menu(update, 4):
-                pass
+                esm = EntityManager()
+                msa = ModelStructuralAttribute()
+                entity = esm.create_entity_structure()
+                entity.set_name(self.glob_lst["name"])
+                if int(self.glob_lst["num_input_port"]) >0:
+                    for i in range(int(self.glob_lst["num_input_port"])):
+                            nm = "in"+str(i+1)
+                            msa.insert_input_port(nm)
+                if int(self.glob_lst["num_output_port"]) > 0:
+                    for i in range(int(self.glob_lst["num_output_port"])):
+                            nm = "out"+str(i+1)
+                            msa.insert_input_port(nm)
+                for i in range(len(self.glob_lst["entities name"])):
+                    msa.insert_entity(self.glob_lst["entities name"][i], self.glob_lst["attribute number"][i],
+                                      self.glob_lst["optional"][i])
+                if len(self.glob_lst["ex_in_portnum"]) > 0:
+                    for i in range(len(self.glob_lst["ex_in_portnum"])):
+                        msa.insert_coupling(("", self.glob_lst["ex_in_portnum"][i]), (self.glob_lst["ex_in_entity"][i],
+                                                                                   self.glob_lst["ex_in_portenti"][i]))
+                if len(self.glob_lst["ex_out_portnum"]) > 0:
+                    for i in range(len(self.glob_lst["ex_out_portnum"])):
+                        msa.insert_coupling((self.glob_lst["ex_out_entity"][i], self.glob_lst["ex_out_portenti"][i]),
+                                            ("", self.glob_lst["ex_out_portnum"][i]))
+                if len(self.glob_lst["internal_out_entity"]) > 0:
+                    for i in range(len(self.glob_lst["internal_out_entity"])):
+                        msa.insert_coupling((self.glob_lst["internal_out_entity"][i],
+                                             self.glob_lst["internal_out_port"][i]),
+                                            (self.glob_lst["internal_in_entity"][i],
+                                             self.glob_lst["internal_in_port"][i]))
+                entity.set_core_attribute(msa)
+                esm.create_system(entity)
+                esm.export_system_entity_structure(entity, self.entity_path, str(self.glob_lst["name"]) + ".json")
+
+                self.clear_system()
+
             else:
                 if update.message.text == "y":
                     update.message.reply_text("created entities: " + str(self.glob_lst["entities name"]))
                     update.message.reply_text("choose first entity out to other")
+
+    def read_option(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                model = self.sm.esm.import_system_entity_structure(self.model_db[update.message.text])
+                print(model)
+                self.print_entity_information(update, model)
+                #update.message.reply_text(model)
+                self.clear_system()
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+
+

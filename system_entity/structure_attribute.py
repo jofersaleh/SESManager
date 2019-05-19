@@ -94,7 +94,6 @@ class ModelStructuralAttribute(ModelAttribute):
                     self.internal_coupling_map_entity[src_entity]=[[src_port, dst_lst]]
 
     def remove_coupling(self, src, dst):
-        # TODO: Implement
         src_entity, src_port = src
         dst_entity, dst_port = dst
         dst_lst = [dst_entity, dst_port]

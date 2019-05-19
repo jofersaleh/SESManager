@@ -35,6 +35,12 @@ def start(update, context):
         update.message.reply_text("0. Exit")
     else:
         Remote_control.STATUS = ""
+        update.message.reply_text("System Management System")
+        update.message.reply_text("1. Entity Management")
+        update.message.reply_text("2. Model Management")
+        update.message.reply_text("3. Model Synthesis")
+        update.message.reply_text("4. Execution Management")
+        update.message.reply_text("0. Exit")
 
 
 
@@ -69,7 +75,7 @@ def echo(update, context):
             Remote_control.STATUS = Remote_control.STATUS[:-1]
             Remote_control.print_current_menu(update, 0)
         else:
-            Remote_control.setting_step(update)
+            update.message.reply_text("please type right number")
 
 def load_ses():
     global sm
