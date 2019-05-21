@@ -53,7 +53,7 @@ def help(update, context):
 
 def echo(update, context):
     """Echo the user message."""
-    if Remote_control.operation_count > 0:
+    if Remote_control.operation_TF:
         Remote_control.setting_step(update)
     else:
         if update.message.text[0] == "1":
@@ -78,7 +78,6 @@ def echo(update, context):
             update.message.reply_text("please type right number")
 
 def load_ses():
-    global sm
     #load ses manager
     if not os.path.exists('./sample/ses_db'):
         os.mkdir('./sample/ses_db')
