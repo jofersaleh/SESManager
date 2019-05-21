@@ -131,7 +131,10 @@ class SysExecutor(SysObject, BehaviorModel):
                     destination[0].ext_trans(destination[1], msg)
                     # Receiver Scheduling
                     # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
+                    self.min_schedule_item.remove(destination[0])
                     destination[0].set_req_time(self.global_time)
+                    self.min_schedule_item.append(destination[0])
+                    #self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
                     # self.min_schedule_item.pop()
                     # self.min_schedule_item.append((destination[0].time_advance() + self.global_time, destination[0]))
 
@@ -231,6 +234,8 @@ class SysExecutor(SysObject, BehaviorModel):
         for event in event_list:
             self.output_handling(None, event[1])
             heapq.heappop(self.input_event_queue)
+
+        self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
         pass
 
     def handle_external_output_event(self):
