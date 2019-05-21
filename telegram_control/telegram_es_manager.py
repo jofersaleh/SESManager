@@ -11,6 +11,12 @@ class telegram_entityManager():
         self.model_db = {}
         self.make_db()
 
+        self.selected = ""
+
+        self.esm = None
+        self.entity = None
+        self.aft_msa = None
+
 
     def make_db(self):
         self. entity_db = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
@@ -20,6 +26,33 @@ class telegram_entityManager():
     def clear_system(self):
         self.glob_lst = {}
         self.operation_count = 0
+        self.selected = ""
+
+    def load_entity(self, selected):
+        self.esm = EntityManager()
+        self.entity = self.esm.create_entity_structure()
+
+        json_data = open(self.model_db[selected]).read()
+        data = json.loads(json_data)
+        self.aft_msa = ModelStructuralAttribute()
+        self.entity.set_name(selected)
+        core = data["core_attribute"]
+        for ntnm, arti, opt in core["entities"]:
+            self.aft_msa.insert_entity(ntnm, arti, opt)
+        self.aft_msa.input_ports = core["input_ports"]
+        self.aft_msa.output_ports = core["output_ports"]
+        self.aft_msa.external_input_map = core["external_input"]
+        self.aft_msa.external_output_map = core["external_output"]
+        self.aft_msa.internal_coupling_map_entity = core["internal"]
+        map_tuple = {}
+        for key, item in core["internal"].items():
+            in_lst = []
+            for inoutlst in item:
+                out_tpl = (key, inoutlst[0])
+                in_tpl = (inoutlst[1][0], inoutlst[1][1])
+                in_lst.append(in_tpl)
+                map_tuple[out_tpl] = in_lst
+        self.aft_msa.internal_coupling_map_tuple = map_tuple
 
     def YN_again_menu(self, update, restart_num):
         if update.message.text == "y":
@@ -53,8 +86,10 @@ class telegram_entityManager():
 
     def print_entity_db(self,update):
         fmt = "{0: <13}\t{1: <13}"
-        for k,v in self.model_db.items():
-            update.message.reply_text(fmt.format(k,v))
+        st = ""
+        for k, v in self.model_db.items():
+            st += fmt.format(k, v) + "\n"
+        update.message.reply_text(st)
 
     def print_entity_information(self, update, target):
         fmt = "{0: <10}{name: <15}\t{arity: <5}\t{opt: <5}"
@@ -395,3 +430,129 @@ class telegram_entityManager():
             else:
                 update.message.reply_text("[ERR] Entity Not Found")
                 update.message.reply_text("Type name of Entity")
+
+    def update_option_addenti(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                #print(model)
+                self.load_entity(self.selected)
+                self.print_entity_information(update, model)
+                update.message.reply_text("Type the entity name you will create")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if "entities name" in self.glob_lst.keys():
+                self.glob_lst["entities name"].append(update.message.text)
+            else:
+                self.glob_lst["entities name"] = [update.message.text]
+            update.message.reply_text("Type number of arity")
+            self.operation_count += 1
+
+        elif self.operation_count == 3:
+            if self.Chk_int(update, update.message.text):
+                if "attribute number" in self.glob_lst.keys():
+                    self.glob_lst["attribute number"].append(update.message.text)
+                else:
+                    self.glob_lst["attribute number"] = [update.message.text]
+                update.message.reply_text("is this entity optional? (y/n)")
+                self.operation_count += 1
+
+        elif self.operation_count == 4:
+            if update.message.text == "y":
+                self.operation_count += 1
+                if "optional" in self.glob_lst.keys():
+                    self.glob_lst["optional"].append(True)
+                else:
+                    self.glob_lst["optional"] = [True]
+                update.message.reply_text("Did you need more entity? (y/n)")
+            elif update.message.text == "n":
+                self.operation_count += 1
+                if "optional" in self.glob_lst.keys():
+                    self.glob_lst["optional"].append(False)
+                else:
+                    self.glob_lst["optional"] = [False]
+                update.message.reply_text("Did you need more entity? (y/n)")
+            else:
+                update.message.reply_text("please type only y or n")
+
+        elif self.operation_count == 5:
+            print(self.glob_lst)
+            if self.YN_again_menu(update, 3):
+                for i in range(len(self.glob_lst["entities name"])):
+                    self.aft_msa.insert_entity(self.glob_lst["entities name"][i],
+                                               self.glob_lst["attribute number"][i],
+                                               self.glob_lst["optional"][i])
+                esm = EntityManager()
+                entity = esm.create_entity_structure()
+                entity.set_core_attribute(self.aft_msa)
+                esm.create_system(entity)
+                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+
+                self.clear_system()
+
+            else:
+                if update.message.text == "y":
+                    update.message.reply_text("What is the entity name?")
+
+    def update_option_deletenti(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                #print(model)
+                self.load_entity(self.selected)
+                self.print_entity_information(update, model)
+                update.message.reply_text("Type the name of entity you will delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            lst_enti = []
+            for entity, arity, opt in self.aft_msa.entity_list:
+                lst_enti.append(entity)
+            if update.message.text in lst_enti:
+                to_delete = []
+                for entity, arity, opt in self.aft_msa.entity_list:
+                    if entity == update.message.text:
+                        to_delete.append(entity)
+                        to_delete.append(arity)
+                        to_delete.append(opt)
+                        break
+                print(to_delete)
+                self.aft_msa.remove_entity(to_delete)
+                update.message.reply_text("Did you need more entity to delete? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Please type again")
+        elif self.operation_count == 3:
+            if self.YN_again_menu(update, 1):
+                esm = EntityManager()
+                entity = esm.create_entity_structure()
+                entity.set_core_attribute(self.aft_msa)
+                esm.create_system(entity)
+                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                    # print(model)
+                    self.load_entity(self.selected)
+                    self.print_entity_information(update, model)
+                    update.message.reply_text("Type name of Entity")
+            
+
+

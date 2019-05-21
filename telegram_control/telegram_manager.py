@@ -27,20 +27,12 @@ def start(update, context):
     update.message.reply_text('You can build your own simulation environment')
     update.message.reply_text("type /help for information")
     if Remote_control.STATUS == "":
-        update.message.reply_text("System Management System")
-        update.message.reply_text("1. Entity Management")
-        update.message.reply_text("2. Model Management")
-        update.message.reply_text("3. Model Synthesis")
-        update.message.reply_text("4. Execution Management")
-        update.message.reply_text("0. Exit")
+        update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
+                                  "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
     else:
         Remote_control.STATUS = ""
-        update.message.reply_text("System Management System")
-        update.message.reply_text("1. Entity Management")
-        update.message.reply_text("2. Model Management")
-        update.message.reply_text("3. Model Synthesis")
-        update.message.reply_text("4. Execution Management")
-        update.message.reply_text("0. Exit")
+        update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
+                                  "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
 
 
 
@@ -73,7 +65,10 @@ def echo(update, context):
             Remote_control.print_current_menu(update, 5)
         elif update.message.text[0] == "0":
             Remote_control.STATUS = Remote_control.STATUS[:-1]
-            Remote_control.print_current_menu(update, 0)
+            if Remote_control.STATUS == "":
+                start(update, context)
+            else:
+                Remote_control.print_current_menu(update, int(Remote_control.STATUS[-1]))
         else:
             update.message.reply_text("please type right number")
 
