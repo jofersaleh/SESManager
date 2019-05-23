@@ -12,6 +12,8 @@ class telegram_entityManager():
         self.make_db()
 
         self.selected = ""
+        self.char_memo = ""
+        self.int_memo = 0
 
         self.esm = None
         self.entity = None
@@ -553,6 +555,164 @@ class telegram_entityManager():
                     self.load_entity(self.selected)
                     self.print_entity_information(update, model)
                     update.message.reply_text("Type name of Entity")
-            
+
+    def update_option_modienti_name(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_entity_information(update, model)
+                update.message.reply_text("Type the name of entity to modify")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+
+        elif self.operation_count == 2:
+            lst_enti = []
+            for entity, arity, opt in self.aft_msa.entity_list:
+                lst_enti.append(entity)
+            if update.message.text in lst_enti:
+                self.int_memo = lst_enti.index(update.message.text)
+                self.operation_count += 1
+                update.message.reply_text("Type the new name")
+            else:
+                update.message.reply_text("No such entity in the list. Please type again.")
+
+        elif self.operation_count == 3:
+            self.aft_msa.entity_list[self.int_memo][0] = update.message.text
+            update.message.reply_text("Did you need more modify name more? (y/n)")
+            self.operation_count += 1
+
+        elif self.operation_count == 4:
+            if self.YN_again_menu(update, 3):
+                esm = EntityManager()
+                entity = esm.create_entity_structure()
+                entity.set_core_attribute(self.aft_msa)
+                esm.create_system(entity)
+                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    esm = EntityManager()
+                    entity = esm.create_entity_structure()
+                    entity.set_core_attribute(self.aft_msa)
+                    esm.create_system(entity)
+                    esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+
+    def update_option_modienti_attribute(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_entity_information(update, model)
+                update.message.reply_text("Type the name of entity to modify")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity to change attribute")
+
+        elif self.operation_count == 2:
+            lst_enti = []
+            for entity, arity, opt in self.aft_msa.entity_list:
+                lst_enti.append(entity)
+            if update.message.text in lst_enti:
+                self.int_memo = lst_enti.index(update.message.text)
+                self.operation_count += 1
+                update.message.reply_text("Type number of adjusted attribute")
+            else:
+                update.message.reply_text("No such entity in the list. Please type again.")
+
+        elif self.operation_count == 3:
+            if self.Chk_int(update, update.message.text):
+                self.aft_msa.entity_list[self.int_memo][1] = update.message.text
+                update.message.reply_text("Did you need more modify attribute more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Please type int")
+
+        elif self.operation_count == 4:
+            if self.YN_again_menu(update, 3):
+                esm = EntityManager()
+                entity = esm.create_entity_structure()
+                entity.set_core_attribute(self.aft_msa)
+                esm.create_system(entity)
+                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    esm = EntityManager()
+                    entity = esm.create_entity_structure()
+                    entity.set_core_attribute(self.aft_msa)
+                    esm.create_system(entity)
+                    esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+    def update_option_modienti_optional(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_entity_information(update, model)
+                update.message.reply_text("Type the name of entity to modify")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity to change optional")
+
+        elif self.operation_count == 2:
+            lst_enti = []
+            for entity, arity, opt in self.aft_msa.entity_list:
+                lst_enti.append(entity)
+            if update.message.text in lst_enti:
+                self.int_memo = lst_enti.index(update.message.text)
+                if self.aft_msa.entity_list[self.int_memo][2]:
+                    self.aft_msa.entity_list[self.int_memo][2] = False
+                else:
+                    self.aft_msa.entity_list[self.int_memo][2] = True
+                update.message.reply_text("Did you need more modify optional more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("No such entity in the list. Please type again.")
+
+        elif self.operation_count == 3:
+            if self.YN_again_menu(update, 2):
+                esm = EntityManager()
+                entity = esm.create_entity_structure()
+                entity.set_core_attribute(self.aft_msa)
+                esm.create_system(entity)
+                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    esm = EntityManager()
+                    entity = esm.create_entity_structure()
+                    entity.set_core_attribute(self.aft_msa)
+                    esm.create_system(entity)
+                    esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
 
 

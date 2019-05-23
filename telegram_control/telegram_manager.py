@@ -25,7 +25,7 @@ Remote_control = Remote_telegram()
 def start(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('You can build your own simulation environment')
-    update.message.reply_text("type /help for information")
+    update.message.reply_text("type /help to see menu again")
     if Remote_control.STATUS == "":
         update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
                                   "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
@@ -38,8 +38,8 @@ def start(update, context):
 
 def help(update, context):
     """Send a message when the command /help is issued."""
-    update.message.reply_text('new : create new system')
     print(Remote_control.STATUS)
+    Remote_control.print_current_menu(update, int(Remote_control.STATUS[-1]))
 
 
 
@@ -72,7 +72,7 @@ def echo(update, context):
         else:
             update.message.reply_text("please type right number")
 
-def load_ses():
+def create_dbdir():
     #load ses manager
     if not os.path.exists('./sample/ses_db'):
         os.mkdir('./sample/ses_db')
@@ -110,7 +110,6 @@ def load_ses():
     entity.set_core_attribute(msa)
 
     esm.export_system_entity_structure(entity, "./sample/ses_db")
-    sm = SystemManager("./sample/ses_db", "./sample/model_db", './sample/pes_db')
 
 
 
