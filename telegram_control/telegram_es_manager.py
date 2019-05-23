@@ -12,8 +12,12 @@ class telegram_entityManager():
         self.make_db()
 
         self.selected = ""
-        self.char_memo = ""
+        self.char_memo_1 = ""
+        self.char_memo_2 = ""
+        self.char_memo_3 = ""
+        self.char_memo_4 = ""
         self.int_memo = 0
+        self.list_memo = []
 
         self.esm = None
         self.entity = None
@@ -29,6 +33,15 @@ class telegram_entityManager():
         self.glob_lst = {}
         self.operation_count = 0
         self.selected = ""
+        self.clear_memo()
+
+    def clear_memo(self):
+        self.char_memo_1 = ""
+        self.char_memo_2 = ""
+        self.char_memo_3 = ""
+        self.char_memo_4 = ""
+        self.int_memo = 0
+        self.list_memo = []
 
     def load_entity(self, selected):
         self.esm = EntityManager()
@@ -55,6 +68,13 @@ class telegram_entityManager():
                 in_lst.append(in_tpl)
                 map_tuple[out_tpl] = in_lst
         self.aft_msa.internal_coupling_map_tuple = map_tuple
+
+    def save_entity(self):
+        esm = EntityManager()
+        entity = esm.create_entity_structure()
+        entity.set_core_attribute(self.aft_msa)
+        esm.create_system(entity)
+        esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
 
     def YN_again_menu(self, update, restart_num):
         if update.message.text == "y":
@@ -105,6 +125,29 @@ class telegram_entityManager():
 
         update.message.reply_text(_str)
 
+    def print_port_information(self, update, target):
+        _str = ""
+        _str += "Name: " + target.entity_name + "\n"
+
+        print("input port: ", self.aft_msa.input_ports)
+        print("output port: ", self.aft_msa.output_ports)
+        print("external input: ", self.aft_msa.external_input_map)
+        print("external output: ", self.aft_msa.external_output_map)
+        print("internal: ", self.aft_msa.internal_coupling_map_entity)
+        print("internal: ", self.aft_msa.internal_coupling_map_tuple)
+
+        _str += "<Input port>" + "\n"
+        _str += str(self.aft_msa.input_ports) + "\n"
+        _str += "<Output port>" + "\n"
+        _str += str(self.aft_msa.output_ports) + "\n"
+        _str += "<External Input>" + "\n"
+        _str += str(self.aft_msa.external_input_map) + "\n"
+        _str += "<External Output>" + "\n"
+        _str += str(self.aft_msa.external_output_map) + "\n"
+        _str += "<Internal>"+ "\n"
+        _str += str(self.aft_msa.internal_coupling_map_tuple)
+
+        update.message.reply_text(_str)
 
 
     def create_option(self, update):
@@ -184,10 +227,11 @@ class telegram_entityManager():
         elif self.operation_count == 9:
             if self.Chk_int(update, update.message.text):
                 if float(update.message.text) <= float(self.glob_lst["num_input_port"]):
+                    port_num = "in"+ update.message.text
                     if "ex_in_portnum" in self.glob_lst.keys():
-                        self.glob_lst["ex_in_portnum"].append(update.message.text)
+                        self.glob_lst["ex_in_portnum"].append(port_num)
                     else:
-                        self.glob_lst["ex_in_portnum"] = [update.message.text]
+                        self.glob_lst["ex_in_portnum"] = [port_num]
                     self.operation_count += 1
                     update.message.reply_text("created entities: " + str(self.glob_lst["entities name"]))
                     update.message.reply_text("choose entity to connect with input port")
@@ -210,10 +254,11 @@ class telegram_entityManager():
         elif self.operation_count == 11:
             if self.Chk_int(update, update.message.text):
                 if float(update.message.text) <= float(self.glob_lst["num_input_port"]):
+                    port_num = "in" + update.message.text
                     if "ex_in_portenti" in self.glob_lst.keys():
-                        self.glob_lst["ex_in_portenti"].append(update.message.text)
+                        self.glob_lst["ex_in_portenti"].append(port_num)
                     else:
-                        self.glob_lst["ex_in_portenti"] = [update.message.text]
+                        self.glob_lst["ex_in_portenti"] = [port_num]
                     self.operation_count += 1
                     update.message.reply_text("did you need more connection? (y/n)")
                 else:
@@ -241,10 +286,11 @@ class telegram_entityManager():
         elif self.operation_count == 14:
             if self.Chk_int(update, update.message.text):
                 if float(update.message.text) <= float(self.glob_lst["num_output_port"]):
+                    port_num = "out" + update.message.text
                     if "ex_out_portnum" in self.glob_lst.keys():
-                        self.glob_lst["ex_out_portnum"].append(update.message.text)
+                        self.glob_lst["ex_out_portnum"].append(port_num)
                     else:
-                        self.glob_lst["ex_out_portnum"] = [update.message.text]
+                        self.glob_lst["ex_out_portnum"] = [port_num]
                     self.operation_count += 1
                     update.message.reply_text("created entities: " + str(self.glob_lst["entities name"]))
                     update.message.reply_text("choose entity to connect with output port")
@@ -267,10 +313,11 @@ class telegram_entityManager():
         elif self.operation_count == 16:
             if self.Chk_int(update, update.message.text):
                 if float(update.message.text) <= float(self.glob_lst["num_output_port"]):
+                    port_num = "out" + update.message.text
                     if "ex_out_portenti" in self.glob_lst.keys():
-                        self.glob_lst["ex_out_portenti"].append(update.message.text)
+                        self.glob_lst["ex_out_portenti"].append(port_num)
                     else:
-                        self.glob_lst["ex_out_portenti"] = [update.message.text]
+                        self.glob_lst["ex_out_portenti"] = [port_num]
                     self.operation_count += 1
                     update.message.reply_text("did you need more connection? (y/n)")
                 else:
@@ -343,10 +390,11 @@ class telegram_entityManager():
         elif self.operation_count == 20:
             if self.Chk_int(update, update.message.text):
                 if float(update.message.text) <= float(self.glob_lst["num_output_port"]):
+                    port_num = "out" + update.message.text
                     if "internal_out_port" in self.glob_lst.keys():
-                        self.glob_lst["internal_out_port"].append(update.message.text)
+                        self.glob_lst["internal_out_port"].append(port_num)
                     else:
-                        self.glob_lst["internal_out_port"] = [update.message.text]
+                        self.glob_lst["internal_out_port"] = [port_num]
                     self.operation_count += 1
                     update.message.reply_text("created entities: " + str(self.glob_lst["entities name"]))
                     update.message.reply_text("choose second entity in by other")
@@ -367,10 +415,11 @@ class telegram_entityManager():
         elif self.operation_count == 22:
             if self.Chk_int(update, update.message.text):
                 if float(update.message.text) <= float(self.glob_lst["num_input_port"]):
+                    port_num = "in" + update.message.text
                     if "internal_in_port" in self.glob_lst.keys():
-                        self.glob_lst["internal_in_port"].append(update.message.text)
+                        self.glob_lst["internal_in_port"].append(port_num)
                     else:
-                        self.glob_lst["internal_in_port"] = [update.message.text]
+                        self.glob_lst["internal_in_port"] = [port_num]
                     self.operation_count += 1
                     update.message.reply_text("Did you need more connection? (y/n)")
                 else:
@@ -384,19 +433,19 @@ class telegram_entityManager():
                 entity.set_name(self.glob_lst["name"])
                 if int(self.glob_lst["num_input_port"]) >0:
                     for i in range(int(self.glob_lst["num_input_port"])):
-                            nm = "in"+str(i+1)
-                            msa.insert_input_port(nm)
+                        nm = "in"+str(i+1)
+                        msa.insert_input_port(nm)
                 if int(self.glob_lst["num_output_port"]) > 0:
                     for i in range(int(self.glob_lst["num_output_port"])):
-                            nm = "out"+str(i+1)
-                            msa.insert_output_port(nm)
+                        nm = "out"+str(i+1)
+                        msa.insert_output_port(nm)
                 for i in range(len(self.glob_lst["entities name"])):
                     msa.insert_entity(self.glob_lst["entities name"][i], self.glob_lst["attribute number"][i],
                                       self.glob_lst["optional"][i])
                 if self.glob_lst.get("ex_in_portnum") is not None:
                     for i in range(len(self.glob_lst["ex_in_portnum"])):
                         msa.insert_coupling(("", self.glob_lst["ex_in_portnum"][i]), (self.glob_lst["ex_in_entity"][i],
-                                                                                   self.glob_lst["ex_in_portenti"][i]))
+                                                                                      self.glob_lst["ex_in_portenti"][i]))
                 if self.glob_lst.get("ex_out_portnum") is not None:
                     for i in range(len(self.glob_lst["ex_out_portnum"])):
                         msa.insert_coupling((self.glob_lst["ex_out_entity"][i], self.glob_lst["ex_out_portenti"][i]),
@@ -492,12 +541,7 @@ class telegram_entityManager():
                     self.aft_msa.insert_entity(self.glob_lst["entities name"][i],
                                                self.glob_lst["attribute number"][i],
                                                self.glob_lst["optional"][i])
-                esm = EntityManager()
-                entity = esm.create_entity_structure()
-                entity.set_core_attribute(self.aft_msa)
-                esm.create_system(entity)
-                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
-
+                self.save_entity()
                 self.clear_system()
 
             else:
@@ -513,7 +557,6 @@ class telegram_entityManager():
             if update.message.text in self.model_db.keys():
                 self.selected = update.message.text
                 model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
-                #print(model)
                 self.load_entity(self.selected)
                 self.print_entity_information(update, model)
                 update.message.reply_text("Type the name of entity you will delete")
@@ -541,17 +584,11 @@ class telegram_entityManager():
                 update.message.reply_text("Please type again")
         elif self.operation_count == 3:
             if self.YN_again_menu(update, 1):
-                esm = EntityManager()
-                entity = esm.create_entity_structure()
-                entity.set_core_attribute(self.aft_msa)
-                esm.create_system(entity)
-                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
-
+                self.save_entity()
                 self.clear_system()
             else:
                 if update.message.text == "y":
                     model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
-                    # print(model)
                     self.load_entity(self.selected)
                     self.print_entity_information(update, model)
                     update.message.reply_text("Type name of Entity")
@@ -592,19 +629,11 @@ class telegram_entityManager():
 
         elif self.operation_count == 4:
             if self.YN_again_menu(update, 3):
-                esm = EntityManager()
-                entity = esm.create_entity_structure()
-                entity.set_core_attribute(self.aft_msa)
-                esm.create_system(entity)
-                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                self.save_entity()
                 self.clear_system()
             else:
                 if update.message.text == "y":
-                    esm = EntityManager()
-                    entity = esm.create_entity_structure()
-                    entity.set_core_attribute(self.aft_msa)
-                    esm.create_system(entity)
-                    esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                    self.save_entity()
                     self.print_entity_db(update)
                     update.message.reply_text("Type name of Entity")
 
@@ -648,19 +677,12 @@ class telegram_entityManager():
 
         elif self.operation_count == 4:
             if self.YN_again_menu(update, 3):
-                esm = EntityManager()
-                entity = esm.create_entity_structure()
-                entity.set_core_attribute(self.aft_msa)
-                esm.create_system(entity)
-                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                self.save_entity()
                 self.clear_system()
             else:
                 if update.message.text == "y":
-                    esm = EntityManager()
-                    entity = esm.create_entity_structure()
-                    entity.set_core_attribute(self.aft_msa)
-                    esm.create_system(entity)
-                    esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                    self.save_entity()
+                    self.clear_memo()
                     self.print_entity_db(update)
                     update.message.reply_text("Type name of Entity")
 
@@ -699,20 +721,263 @@ class telegram_entityManager():
 
         elif self.operation_count == 3:
             if self.YN_again_menu(update, 2):
-                esm = EntityManager()
-                entity = esm.create_entity_structure()
-                entity.set_core_attribute(self.aft_msa)
-                esm.create_system(entity)
-                esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                self.save_entity()
                 self.clear_system()
             else:
                 if update.message.text == "y":
-                    esm = EntityManager()
-                    entity = esm.create_entity_structure()
-                    entity.set_core_attribute(self.aft_msa)
-                    esm.create_system(entity)
-                    esm.export_system_entity_structure(entity, self.entity_path, self.selected + ".json")
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+    def update_option_modiport_insert_input(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type the name of new input port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            self.aft_msa.insert_input_port(update.message.text)
+            update.message.reply_text("Did you need more add more? (y/n)")
+            self.operation_count += 1
+
+        elif self.operation_count == 3:
+            if self.YN_again_menu(update, 2):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+    def update_option_modiport_insert_output(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type the name of new output port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            self.aft_msa.insert_output_port(update.message.text)
+            update.message.reply_text("Did you need more add more? (y/n)")
+            self.operation_count += 1
+
+        elif self.operation_count == 3:
+            if self.YN_again_menu(update, 2):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+    def update_option_modiport_insert_exinput(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("type the name of input port that you will use for external input port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.input_ports:
+                self.char_memo_1 = update.message.text
+                for name, arti, opt in self.aft_msa.entity_list:
+                    self.list_memo.append(name)
+                update.message.reply_text(str(self.list_memo))
+                update.message.reply_text("Choose entity that will be connected with input port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 3:
+            if update.message.text in self.list_memo:
+                self.char_memo_2 = update.message.text
+                update.message.reply_text(str(self.aft_msa.input_ports))
+                update.message.reply_text("type the name of input port that you will use with entity")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 4:
+            if update.message.text in self.aft_msa.input_ports:
+                self.aft_msa.insert_coupling(("", self.char_memo_1), (self.char_memo_2, update.message.text))
+                self.operation_count += 1
+                update.message.reply_text("If you want to coupling more? (y/n)")
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 5:
+            if self.YN_again_menu(update, 4):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+    def update_option_modiport_insert_exoutput(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("type the name of input port that you will use for external output port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.output_ports:
+                self.char_memo_1 = update.message.text
+                for name, arti, opt in self.aft_msa.entity_list:
+                    self.list_memo.append(name)
+                update.message.reply_text(str(self.list_memo))
+                update.message.reply_text("Choose entity that will be connected with output port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 3:
+            if update.message.text in self.list_memo:
+                self.char_memo_2 = update.message.text
+                update.message.reply_text(str(self.aft_msa.output_ports))
+                update.message.reply_text("type the name of output port that you will use with entity")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 4:
+            if update.message.text in self.aft_msa.output_ports:
+                self.aft_msa.insert_coupling((self.char_memo_2, update.message.text), ("", self.char_memo_1))
+                self.operation_count += 1
+                update.message.reply_text("If you want to coupling more? (y/n)")
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 5:
+            if self.YN_again_menu(update, 4):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
+
+    def update_option_modiport_insert_internal(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Choose output port that you want to use to coupling")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.output_ports:
+                self.char_memo_1 = update.message.text
+                for name, arti, opt in self.aft_msa.entity_list:
+                    self.list_memo.append(name)
+                update.message.reply_text(str(self.list_memo))
+                update.message.reply_text("Choose entity that you will use with output port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 3:
+            if update.message.text in self.list_memo:
+                self.char_memo_2 = update.message.text
+                update.message.reply_text(str(self.aft_msa.input_ports))
+                update.message.reply_text("Choose input port that you want to use to coupling")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 4:
+            if update.message.text in self.aft_msa.input_ports:
+                self.char_memo_3 = update.message.text
+                update.message.reply_text(str(self.list_memo))
+                update.message.reply_text("Choose entity that you will use with input port")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 5:
+            if update.message.text in self.list_memo:
+                self.aft_msa.insert_coupling((self.char_memo_2, self.char_memo_1),
+                                             (update.message.text, self.char_memo_3))
+                self.operation_count += 1
+                update.message.reply_text("If you want to coupling more? (y/n)")
+            else:
+                update.message.reply_text("there is no such " + update.message.text + " please type again.")
+        elif self.operation_count == 6:
+            if self.YN_again_menu(update, 5):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
                     self.print_entity_db(update)
                     update.message.reply_text("Type name of Entity")
 
 
+    def update_option_modiport_delete_input(self, update):
+        pass
+
+    def update_option_modiport_delete_output(self, update):
+        pass
+
+    def update_option_modiport_delete_exinput(self, update):
+        pass
+
+    def update_option_modiport_delete_exoutput(self, update):
+        pass
+
+    def update_option_modiport_delete_internal(self, update):
+        pass
+
+    def update_option_modiport_change_input(self, update):
+        pass
+
+    def update_option_modiport_change_output(self, update):
+        pass

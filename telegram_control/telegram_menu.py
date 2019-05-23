@@ -99,11 +99,11 @@ class Remote_telegram():
                 elif self.STATUS[0:3] == "134":
                     update.message.reply_text("What did you want to change? \n 1. Input port\n2. Output port\n"
                                               "0. Exit")
-                elif len(self.STATUS) == 5:
-                    if self.STATUS[0:4] == "1341":
-                        self.es_operation_start(update)
-                    elif self.STATUS[0:4] == "1342":
-                        self.es_operation_start(update)
+            elif len(self.STATUS) == 5:
+                if self.STATUS[0:4] == "1341":
+                    self.es_operation_start(update)
+                elif self.STATUS[0:4] == "1342":
+                    self.es_operation_start(update)
 
             else:
                 update.message.reply_text("Please type again")
@@ -158,31 +158,31 @@ class Remote_telegram():
             else:
                 if self.STATUS[3] == "1":
                     if self.STATUS == "13411":
-                        pass
+                        self.es_manager.update_option_modiport_insert_input(update)
                     elif self.STATUS == "13412":
-                        pass
+                        self.es_manager.update_option_modiport_insert_output(update)
                     elif self.STATUS == "13413":
-                        pass
+                        self.es_manager.update_option_modiport_insert_exinput(update)
                     elif self.STATUS == "13414":
-                        pass
+                        self.es_manager.update_option_modiport_insert_exoutput(update)
                     elif self.STATUS == "13415":
-                        pass
+                        self.es_manager.update_option_modiport_insert_internal(update)
                 elif self.STATUS[3] == "2":
                     if self.STATUS == "13421":
-                        pass
+                        self.es_manager.update_option_modiport_delete_input(update)
                     elif self.STATUS == "13422":
-                        pass
+                        self.es_manager.update_option_modiport_delete_output(update)
                     elif self.STATUS == "13423":
-                        pass
+                        self.es_manager.update_option_modiport_delete_exinput(update)
                     elif self.STATUS == "13424":
-                        pass
+                        self.es_manager.update_option_modiport_delete_exoutput(update)
                     elif self.STATUS == "13425":
-                        pass
+                        self.es_manager.update_option_modiport_delete_internal(update)
                 else:
                     if self.STATUS == "13431":
-                        pass
+                        self.es_manager.update_option_modiport_change_input(update)
                     elif self.STATUS == "13432":
-                        pass
+                        self.es_manager.update_option_modiport_change_output(update)
 
             if self.es_manager is not None:
                 if check_operation(self.es_manager.operation_count):
