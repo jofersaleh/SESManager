@@ -30,6 +30,10 @@ def start(update, context):
         update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
                                   "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
     else:
+        if Remote_control.operation_TF:
+            if Remote_control.es_manager is not None:
+                Remote_control.es_manager.clear_system()
+            Remote_control.operation_TF = False
         Remote_control.STATUS = ""
         update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
                                   "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
@@ -38,7 +42,7 @@ def start(update, context):
 
 def help(update, context):
     """Send a message when the command /help is issued."""
-    print(Remote_control.STATUS)
+    update.message.reply_text("Type /start to restart the program")
     Remote_control.print_current_menu(update, int(Remote_control.STATUS[-1]))
 
 

@@ -16,6 +16,7 @@ class telegram_entityManager():
         self.char_memo_2 = ""
         self.char_memo_3 = ""
         self.char_memo_4 = ""
+        self.char_memo_5 = ""
         self.int_memo = 0
         self.list_memo = []
 
@@ -40,6 +41,7 @@ class telegram_entityManager():
         self.char_memo_2 = ""
         self.char_memo_3 = ""
         self.char_memo_4 = ""
+        self.char_memo_5 = ""
         self.int_memo = 0
         self.list_memo = []
 
@@ -962,19 +964,368 @@ class telegram_entityManager():
 
 
     def update_option_modiport_delete_input(self, update):
-        pass
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type port that you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.input_ports:
+                self.aft_msa.input_ports.remove(update.message.text)
+                if update.message.text in self.aft_msa.external_input_map.keys():
+                    self.aft_msa.external_input_map.pop(update.message.text)
+                pop_lst = []
+                for key, values in self.aft_msa.external_input_map.items():
+                    rmv_lst = []
+                    i = len(values)
+                    for item in values:
+                        if item[1] == update.message.text:
+                            if i == 1:
+                                pop_lst.append(key)
+                            else:
+                                rmv_lst.append(item)
+                                i -= 1
+                    for item in rmv_lst:
+                        values.remove(item)
+                for key in pop_lst:
+                    self.aft_msa.external_input_map.pop(key)
+                pop_lst = []
+                for key, values in self.aft_msa.internal_coupling_map_entity.items():
+                    rmv_lst = []
+                    i = len(values)
+                    for item in values:
+                        if item[1][1] == update.message.text:
+                            if i == 1:
+                                pop_lst.append(key)
+                            else:
+                                rmv_lst.append(item)
+                                i -= 1
+                    for item in rmv_lst:
+                        values.remove(item)
+                for key in pop_lst:
+                    self.aft_msa.internal_coupling_map_entity.pop(key)
+                pop_lst = []
+                for key, values in self.aft_msa.internal_coupling_map_tuple.items():
+                    rmv_lst = []
+                    i = len(values)
+                    for item in values:
+                        if item[1] == update.message.text:
+                            if len(values) == 1:
+                                pop_lst.append(key)
+                            else:
+                                rmv_lst.append(item)
+                                i -= 1
+                    for item in rmv_lst:
+                        values.remove(item)
+                for key in pop_lst:
+                    self.aft_msa.internal_coupling_map_tuple.pop(key)
+                update.message.reply_text("Did you want delete more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Can't find that port. Please type again")
+
+        elif self.operation_count == 3:
+            if self.YN_again_menu(update, 2):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
 
     def update_option_modiport_delete_output(self, update):
-        pass
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type port that you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.output_ports:
+                self.aft_msa.output_ports.remove(update.message.text)
+                if update.message.text in self.aft_msa.external_output_map.keys():
+                    self.aft_msa.external_output_map.pop(update.message.text)
+                pop_lst = []
+                for key, values in self.aft_msa.external_output_map.items():
+                    rmv_lst = []
+                    i = len(values)
+                    for item in values:
+                        if item[1] == update.message.text:
+                            if i == 1:
+                                pop_lst.append(key)
+                            else:
+                                rmv_lst.append(item)
+                                i -= 1
+                    for item in rmv_lst:
+                        values.remove(item)
+                for key in pop_lst:
+                    self.aft_msa.external_output_map.pop(key)
+                pop_lst = []
+                for key, values in self.aft_msa.internal_coupling_map_entity.items():
+                    rmv_lst = []
+                    i = len(values)
+                    for item in values:
+                        if item[0] == update.message.text:
+                            if i == 1:
+                                pop_lst.append(key)
+                            else:
+                                rmv_lst.append(item)
+                                i -= 1
+                    for item in rmv_lst:
+                        values.remove(item)
+                for key in pop_lst:
+                    self.aft_msa.internal_coupling_map_entity.pop(key)
+                pop_lst = []
+                for key, values in self.aft_msa.internal_coupling_map_tuple.items():
+                    if key[1] == update.message.text:
+                        pop_lst.append(key)
+                for key in pop_lst:
+                    self.aft_msa.internal_coupling_map_tuple.pop(key)
+                update.message.reply_text("Did you need want delete more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Can't find that port. Please type again")
+        elif self.operation_count == 3:
+            if self.YN_again_menu(update, 2):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
 
     def update_option_modiport_delete_exinput(self, update):
-        pass
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type external input port that you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.external_input_map.keys():
+                if len(self.aft_msa.external_input_map.get(update.message.text)) == 1:
+                    self.aft_msa.remove_coupling(("", update.message.text),
+                                                 (self.aft_msa.external_input_map.get(update.message.text)[0][0],
+                                                  self.aft_msa.external_input_map.get(update.message.text)[0][1]))
+                    update.message.reply_text("Did you need want delete more? (y/n)")
+                    self.operation_count += 2
+                else:
+                    update.message.reply_text(self.aft_msa.external_input_map.values())
+                    update.message.reply_text("Type name the name of the entity")
+                    self.char_memo_1 = update.message.text
+                    self.operation_count += 1
+            else:
+                update.message.reply_text("Cant find that port. Please type again")
+        elif self.operation_count == 3:
+            if update.message.text in self.aft_msa.entity_list:
+                i = 0
+                T = True
+                while T:
+                    _compared = self.aft_msa.external_input_map.get(self.char_memo_1)[i][0]
+                    if _compared == update.message.text:
+                        T = False
+                    else:
+                        i += 1
+                self.aft_msa.remove_coupling(("", self.char_memo_1),
+                                             (self.aft_msa.external_input_map.get(self.char_memo_1)[i][0],
+                                              self.aft_msa.external_input_map.get(self.char_memo_1)[i][1]))
+                update.message.reply_text("Did you need want delete more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Please type again")
+        elif self.operation_count == 4:
+            if self.YN_again_menu(update, 3):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
 
     def update_option_modiport_delete_exoutput(self, update):
-        pass
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type external output port that you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.external_output_map.keys():
+                if len(self.aft_msa.external_output_map.get(update.message.text)) == 1:
+                    self.aft_msa.remove_coupling((self.aft_msa.external_output_map.get(update.message.text)[0][0],
+                                             self.aft_msa.external_output_map.get(update.message.text)[0][1]), ("", update.message.text))
+                    update.message.reply_text("Did you need want delete more? (y/n)")
+                    self.operation_count += 2
+                else:
+                    update.message.reply_text(self.aft_msa.external_output_map.values())
+                    update.message.reply_text("Type name the name of the entity")
+                    self.char_memo_1 = update.message.text
+                    self.operation_count += 1
+            else:
+                update.message.reply_text("Cant find that port. Please type again")
+        elif self.operation_count == 3:
+            if update.message.text in self.aft_msa.entity_list:
+                i = 0
+                T = True
+                while T:
+                    _compared = self.aft_msa.external_output_map.get(self.char_memo_1)[i][0]
+                    if _compared == update.message.text:
+                        T = False
+                    else:
+                        i += 1
+                self.aft_msa.remove_coupling(("", self.char_memo_1),
+                                             (self.aft_msa.external_output_map.get(self.char_memo_1)[i][0],
+                                              self.aft_msa.external_output_map.get(self.char_memo_1)[i][1]))
+                update.message.reply_text("Did you need want delete more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Please type again")
+        elif self.operation_count == 4:
+            if self.YN_again_menu(update, 3):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
 
     def update_option_modiport_delete_internal(self, update):
-        pass
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                # print(model)
+                self.load_entity(self.selected)
+                self.print_port_information(update, model)
+                update.message.reply_text("Type entity with output port "
+                                          "that included in internal port you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            if update.message.text in self.aft_msa.internal_coupling_map_entity.keys():
+                self.char_memo_1 = update.message.text
+                update.message.reply_text("Type output port "
+                                          "that included in internal port you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Can't find that entity in the internal coupling")
+                update.message.reply_text("Type entity with output port "
+                                          "that included in internal port you want to delete")
+        elif self.operation_count == 3:
+            self.list_memo = []
+            for enti, inport in self.aft_msa.internal_coupling_map_entity[self.char_memo_1]:
+                self.list_memo.append(enti)
+            if update.message.text in self.list_memo:
+                self.char_memo_2 = update.message.text
+                if self.list_memo.count(update.message.text) == 1:
+                    self.char_memo_4 = str(self.list_memo.index(update.message.text))
+                else:
+                    for i in range(len(self.list_memo)):
+                        if self.list_memo[i] == update.message.text:
+                            self.char_memo_4 += str(i)
+                    print(self.char_memo_4)
+                update.message.reply_text("Type entity with input port "
+                                          "that included in internal port you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Can't find that port. Please type again")
+
+        elif self.operation_count == 4:
+            self.list_memo = []
+            for i in range(len(self.char_memo_4)):
+                self.list_memo.append(
+                    self.aft_msa.internal_coupling_map_entity[self.char_memo_1][int(self.char_memo_4[i])][1][0])
+            print(self.list_memo)
+            if update.message.text in self.list_memo:
+                self.char_memo_3 = update.message.text
+                for i in range(len(self.list_memo)):
+                    if self.list_memo[i] == update.message.text:
+                        self.char_memo_5 += self.char_memo_4[i]
+                print(self.char_memo_5)
+                update.message.reply_text("Type input port "
+                                          "that included in internal port you want to delete")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Can't find that entity. Please type again")
+        elif self.operation_count == 5:
+            self.list_memo = []
+            for i in range(len(self.char_memo_5)):
+                self.list_memo.append(
+                    self.aft_msa.internal_coupling_map_entity[self.char_memo_1][int(self.char_memo_5[i])][1][1])
+            print(self.list_memo)
+            if update.message.text in self.list_memo:
+                self.aft_msa.remove_coupling((self.char_memo_1, self.char_memo_2),
+                                             (self.char_memo_3, update.message.text))
+                update.message.reply_text("Did you need want delete more? (y/n)")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("Can't find that port. Please type again")
+
+        elif self.operation_count == 6:
+            if self.YN_again_menu(update, 5):
+                self.save_entity()
+                self.clear_system()
+            else:
+                if update.message.text == "y":
+                    self.save_entity()
+                    self.clear_memo()
+                    self.print_entity_db(update)
+                    update.message.reply_text("Type name of Entity")
 
     def update_option_modiport_change_input(self, update):
         pass
