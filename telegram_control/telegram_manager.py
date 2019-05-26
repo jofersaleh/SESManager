@@ -43,7 +43,7 @@ def start(update, context):
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text("Type /start to restart the program")
-    Remote_control.print_current_menu(update, int(Remote_control.STATUS[-1]))
+    #Remote_control.print_current_menu(update, int(Remote_control.STATUS[-1]))
 
 
 

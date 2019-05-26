@@ -1,5 +1,3 @@
-from system_manager.system_manager import *
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram_control.telegram_es_manager import *
 
 
@@ -10,7 +8,7 @@ def check_operation(count):
         return False
 
 
-class Remote_telegram():
+class Remote_telegram:
     def __init__(self):
         self.STATUS = ""
         self.operation_TF = False
