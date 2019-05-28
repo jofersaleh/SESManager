@@ -20,11 +20,14 @@ class telegram_entityManager:
         self.char_memo_5 = ""
         self.int_memo = 0
         self.list_memo = []
+        self.list_memo_2 = []
 
         self.esm = None
         self.entity = None
         self.aft_msa = None
 
+        self.pes = None
+        self.ra = None
     def make_db(self):
         self. entity_db = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
         for _file in self.entity_db:
@@ -44,6 +47,7 @@ class telegram_entityManager:
         self.char_memo_5 = ""
         self.int_memo = 0
         self.list_memo = []
+        self.list_memo_2 = []
 
     def load_entity(self, selected):
         self.esm = EntityManager()
@@ -1426,3 +1430,160 @@ class telegram_entityManager:
                     self.clear_memo()
                     self.print_entity_db(update)
                     update.message.reply_text("Type name of Entity")
+
+    def interactive_pruning(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                self.load_entity(self.selected)
+                root_entity = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
+                self.pes = root_entity.clone()
+                self.pes.set_name("pruned_" + self.pes.get_name())
+                self.pes.entity_list = self.pes.check_validity()
+                update.message.reply_text("Type anything to process")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+        elif self.operation_count == 2:
+            fmt = "{name: <10}\t{arity: <5}\t{opt: <5}"
+            update.message.reply_text("List of entities to pruning")
+            _str = ""
+            for entity in self.pes.entity_list:
+                _str += fmt.format(name=entity[0], arity=entity[1], opt=entity[2]) + "\n"
+            update.message.reply_text(_str)
+            update.message.reply_text("Select entity to prune")
+            self.operation_count += 1
+
+        elif self.operation_count == 3:
+            if True in list(map(lambda x: x[0] == update.message.text, self.pes.entity_list)):
+                self.char_memo_1 = update.message.text
+                update.message.reply_text("Type anything to process")
+                self.operation_count += 1
+            else:
+                update.message.reply_text("[ERR] Entity Not Found. Please type again")
+
+        elif self.operation_count == 4:
+            for entity in self.pes.entity_list:
+                if entity[0] == self.char_memo_1:
+                    if entity[2]:
+                        update.message.reply_text("> The sub-entity {0} is optional".format(entity[0]))
+                        update.message.reply_text("> Select(s), Remove(n)")
+                        self.operation_count += 1
+                    else:
+                        for entity in self.pes.entity_list:
+                            if entity[0] == self.char_memo_1:
+                                if type(entity[1]) is str:
+                                    update.message.reply_text("> The arity of {0} is {1}".format(entity[0], entity[1]))
+                                    update.message.reply_text("> Enter arity:")
+                        self.operation_count += 2
+
+        elif self.operation_count == 5:
+            for entity in self.pes.entity_list:
+                if entity[0] == self.char_memo_1:
+                    if update.message.text == 's':
+                        entity[2] = False
+                        if type(entity[1]) is str:
+                            update.message.reply_text("> The arity of {0} is {1}".format(entity[0], entity[1]))
+                            update.message.reply_text("> Enter arity:")
+                        self.operation_count += 1
+                    elif update.message.text == 'n':
+                        self.list_memo = entity
+                        update.message.reply_text("Enter anything to continue")
+                        self.operation_count += 2
+                    else:
+                        update.message.reply_text("Please type only s or n")
+                        update.message.reply_text("> Select(s), Remove(n)")
+
+        elif self.operation_count == 6:
+            for entity in self.pes.entity_list:
+                if entity[0] == self.char_memo_1:
+                    entity[1] = update.message.text
+                    update.message.reply_text("Enter anything to continue")
+                    self.operation_count += 1
+
+        elif self.operation_count == 7:
+            if len(self.list_memo) > 0:
+                self.pes.remove_entity(self.list_memo)
+            self.pes.entity_list = self.pes.check_validity()
+            if not len(self.pes.entity_list) == 0:
+                fmt = "{name: <10}\t{arity: <5}\t{opt: <5}"
+                update.message.reply_text("List of entities to pruning")
+                _str = ""
+                for entity in self.pes.entity_list:
+                    _str += fmt.format(name=entity[0], arity=entity[1], opt=entity[2]) + "\n"
+                update.message.reply_text(_str)
+                update.message.reply_text("Select entity to prune")
+                self.operation_count -= 4
+            else:
+                update.message.reply_text("Do you want to synthesize executable? (y/n)")
+                self.operation_count += 1
+
+        elif self.operation_count == 8:
+            if self.YN_nextstep_menu(update, 6):
+                self.ra = RuntimeAttribute()
+                self.list_memo = self.pes.get_core_attribute().retrieve_entities()
+                self.int_memo = len(self.list_memo)
+            update.message.reply_text("Press enter anything to continue.")
+
+        elif self.operation_count == 9:
+            if not self.int_memo == 0:
+                update.message.reply_text("Do you want to add model instance? (y/n)")
+                self.operation_count += 1
+            else:
+                self.operation_count += 5
+                update.message.reply_text("Press enter anything to continue.")
+
+        elif self.operation_count == 10:
+            if self.YN_nextstep_menu(update, 4):
+                self.ra.insert_entity(self.list_memo[len(self.list_memo)-self.int_memo][0])
+                update.message.reply_text(">>> Enter path of {}'s"
+                              " model instance: ".format(self.list_memo[len(self.list_memo)-self.int_memo][0]))
+
+        elif self.operation_count == 11:
+            self.ra.insert_model_path(self.list_memo[len(self.list_memo)-self.int_memo][0], update.message.text)
+            update.message.reply_text(">>> Do you want to add domain instance? (y/n)")
+            self.operation_count += 1
+
+        elif self.operation_count == 12:
+            if self.YN_nextstep_menu(update, 2):
+                update.message.reply_text(">>> Enter path of {}'s domain instance"
+                                          ": ".format(self.list_memo[len(self.list_memo)-self.int_memo][0]))
+
+        elif self.operation_count == 13:
+            self.ra.insert_domain_path((self.list_memo[len(self.list_memo)-self.int_memo][0], update.message.text))
+            self.int_memo -= 1
+            if not self.int_memo == 0:
+                update.message.reply_text("Press enter anything to continue.")
+                self.operation_count -= 4
+            else:
+                update.message.reply_text("Press enter anything to continue.")
+                self.operation_count += 1
+
+        elif self.operation_count == 14:
+            if not self.ra is None:
+                self.pes.insert_attribute(self.ra)
+            update.message.reply_text(">>> Pruned Entity Structure <<< ")
+
+            fmt = "{0: <10}{name: <15}\t{arity: <5}\t{opt: <5}"
+            _str = ""
+            _str += "Name: " + self.pes.entity_name + "\n"
+            _str += fmt.format("Entities: ", name="Name", arity="Arity", opt="Optional") + "\n"
+            entities = self.pes.core_attribute.retrieve_entities()
+            for idx, entity in enumerate(entities):
+                _str += "\t" + fmt.format(idx + 1, name=entity[0], arity=entity[1], opt=entity[2]) + "\n"
+
+            update.message.reply_text(_str)
+            update.message.reply_text("Stored in pes_db")
+            pes_path = os.path.join(os.path.dirname(self.entity_path), "pes_db")
+
+            esm = EntityManager()
+            entity = esm.create_entity_structure()
+            entity.set_core_attribute(self.aft_msa)
+            esm.create_system(entity)
+            self.pes.export_system_entity_structure(self.pes, pes_path, self.pes.get_name() + ".json")
+            self.clear_system()

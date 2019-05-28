@@ -81,8 +81,7 @@ class Remote_telegram:
 
         elif current_num == 3:
             if len(self.STATUS) == 1:
-                #Model Synthesis
-                update.message.reply_text(self.STATUS)
+                self.es_operation_start(update)
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
                     update.message.reply_text("What did you want to modify entity\n1. Add Entity\n2. Delete Entity"
@@ -113,7 +112,6 @@ class Remote_telegram:
                 update.message.reply_text(self.STATUS)
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
-                    #Delete Entity
                     self.es_operation_start(update)
             elif len(self.STATUS) == 3:
                 if self.STATUS[0:2] == "13":
@@ -182,10 +180,13 @@ class Remote_telegram:
                     elif self.STATUS == "13432":
                         self.es_manager.update_option_modiport_change_output(update)
 
-            if self.es_manager is not None:
-                if check_operation(self.es_manager.operation_count):
-                    #To go back to menu
-                    self.operation_TF = False
-                    self.es_manager = None
-                    self.STATUS = self.STATUS[:-1]
-                    self.print_current_menu(update, int(self.STATUS[-1]))
+        elif self.STATUS[0] == "3":
+            self.es_manager.interactive_pruning(update)
+
+        if self.es_manager is not None:
+            if check_operation(self.es_manager.operation_count):
+                #To go back to menu
+                self.operation_TF = False
+                self.es_manager = None
+                self.STATUS = self.STATUS[:-1]
+                self.print_current_menu(update, int(self.STATUS[-1]))
