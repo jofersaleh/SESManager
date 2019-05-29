@@ -1,5 +1,6 @@
 from telegram_control.telegram_es_manager import *
 from telegram_control.telegram_execution_manager import *
+from telegram_control.telegram_pydot import *
 
 def check_operation(count):
     if count == 0:
@@ -13,21 +14,28 @@ class Remote_telegram:
         self.STATUS = ""
         self.operation_TF = False
         self.es_manager = None
+        self.dot_manager = None
         self.em_manager = None
 
-    def es_operation_start(self, update):
+    def es_operation_start(self, update, context):
         print("!")
         self.es_manager = telegram_entityManager()
-        self.setting_step(update)
+        self.setting_step(update, context)
         self.operation_TF = True
 
-    def em_operation_start(self, update):
+    def dot_operation_start(self, update, context):
+        print("!")
+        self.dot_manager = telegram_dotManager()
+        self.setting_step(update, context)
+        self.operation_TF = True
+
+    def em_operation_start(self, update, context):
         print("!")
         self.em_manager = telegram_executionManager()
-        self.setting_step(update)
+        self.setting_step(update, context)
         self.operation_TF = True
 
-    def print_current_menu(self, update, current_num):
+    def print_current_menu(self, update, context, current_num):
         print(self.STATUS)
         if current_num == 1:
             if len(self.STATUS) == 1:
@@ -35,56 +43,57 @@ class Remote_telegram:
                                           "3. Update Entity\n4. Delete Entity\n0. Exit")
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
+                elif self.STATUS[0] == "2":
+                    self.dot_operation_start(update, context)
                 elif self.STATUS[0] == "4":
-                    self.em_operation_start(update)
+                    self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
                 if self.STATUS[0:2] == "13":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
             elif len(self.STATUS) == 4:
                 if self.STATUS[0:3] == "133":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:3] == "134":
                     update.message.reply_text("What did you want to insert? \n 1. Input port\n2. Output port\n"
                                               "3. External input port\n4. External output port\n"
                                               "5. Internal port \n 0. Exit")
             elif len(self.STATUS) == 5:
                 if self.STATUS[0:4] == "1341":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1342":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1343":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
             else:
                 update.message.reply_text("Please type again")
                 self.STATUS = self.STATUS[:-1]
 
         elif current_num == 2:
             if len(self.STATUS) == 1:
-                # model management
-                update.message.reply_text(self.STATUS)
+                update.message.reply_text("1. See entity by dot \n 0. Exit")
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0] == "4":
-                    self.em_operation_start(update)
+                    self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
                 if self.STATUS[0:2] == "13":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
             elif len(self.STATUS) == 4:
                 if self.STATUS[0:3] == "133":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:3] == "134":
                     update.message.reply_text("What did you want to delete? \n 1. Input port\n2. Output port\n"
                                               "3. External input port\n4. External output port\n"
                                               "5. Internal port \n 0. Exit")
             elif len(self.STATUS) == 5:
                 if self.STATUS[0:4] == "1341":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1342":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1343":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
 
             else:
                 update.message.reply_text("Please type again")
@@ -92,28 +101,28 @@ class Remote_telegram:
 
         elif current_num == 3:
             if len(self.STATUS) == 1:
-                self.es_operation_start(update)
+                self.es_operation_start(update, context)
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
                     update.message.reply_text("What did you want to modify entity\n1. Add Entity\n2. Delete Entity"
                                               "\n3. Modify inside of Entity\n4. Modify Port\n0. Exit")
                 elif self.STATUS[0] == "4":
-                    self.em_operation_start(update)
+                    self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
                 if self.STATUS[0:2] == "13":
                     update.message.reply_text("What did you want to modify? \n1. Name\n"
                                               "2. Attribute\n 3. optional\n0. Exit")
             elif len(self.STATUS) == 4:
                 if self.STATUS[0:3] == "133":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:3] == "134":
                     update.message.reply_text("What did you want to change? \n 1. Input port\n2. Output port\n"
                                               "0. Exit")
             elif len(self.STATUS) == 5:
                 if self.STATUS[0:4] == "1341":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1342":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
 
             else:
                 update.message.reply_text("Please type again")
@@ -125,29 +134,29 @@ class Remote_telegram:
                                           "3. Execute System\n 4. Synthesize Executable \n 0. Exit")
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0] == "4":
-                    self.em_operation_start(update)
+                    self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
                 if self.STATUS[0:2] == "13":
                     update.message.reply_text("What did you want to modify? \n1. Insert new port\n"
                                               "2. Delete port\n 3. Change name of port\n0. Exit")
             elif len(self.STATUS) == 5:
                 if self.STATUS[0:4] == "1341":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1342":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
         elif current_num == 5:
             if len(self.STATUS) == 5:
                 if self.STATUS[0:4] == "1341":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
                 elif self.STATUS[0:4] == "1342":
-                    self.es_operation_start(update)
+                    self.es_operation_start(update, context)
             else:
                 update.message.reply_text("Please type again")
                 self.STATUS = self.STATUS[:-1]
 
-    def setting_step(self, update):
+    def setting_step(self, update, context):
         if self.STATUS[0] == "1":
             if len(self.STATUS) == 2:
                 if self.STATUS == "11":
@@ -195,6 +204,10 @@ class Remote_telegram:
                     elif self.STATUS == "13432":
                         self.es_manager.update_option_modiport_change_output(update)
 
+        elif self.STATUS[0] == "2":
+            if self.STATUS == "21":
+                self.dot_manager.print_entity_dot(update, context)
+
         elif self.STATUS[0] == "3":
             self.es_manager.interactive_pruning(update)
 
@@ -217,7 +230,7 @@ class Remote_telegram:
                 if len(self.STATUS) == 0:
                     update.message.reply_text("Please type /start to restart")
                 else:
-                    self.print_current_menu(update, int(self.STATUS[-1]))
+                    self.print_current_menu(update, context, int(self.STATUS[-1]))
         elif self.em_manager is not None:
             if check_operation(self.em_manager.operation_count):
                 self.operation_TF = False
@@ -226,5 +239,15 @@ class Remote_telegram:
                 if len(self.STATUS) == 0:
                     update.message.reply_text("Please type /start to restart")
                 else:
-                    self.print_current_menu(update, int(self.STATUS[-1]))
+                    self.print_current_menu(update, context, int(self.STATUS[-1]))
+
+        elif self.dot_manager is not None:
+            if check_operation(self.dot_manager.operation_count):
+                self.operation_TF = False
+                self.dot_manager = None
+                self.STATUS = self.STATUS[:-1]
+                if len(self.STATUS) == 0:
+                    update.message.reply_text("Please type /start to restart")
+                else:
+                    self.print_current_menu(update, context, int(self.STATUS[-1]))
 

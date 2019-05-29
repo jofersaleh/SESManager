@@ -27,7 +27,7 @@ def start(update, context):
     update.message.reply_text('You can build your own simulation environment')
     update.message.reply_text("type /help to see menu again")
     if Remote_control.STATUS == "":
-        update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
+        update.message.reply_text("System Management System\n1. Entity Management\n2. Dot Management"
                                   "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
     else:
         if Remote_control.operation_TF:
@@ -35,7 +35,7 @@ def start(update, context):
                 Remote_control.es_manager.clear_system()
             Remote_control.operation_TF = False
         Remote_control.STATUS = ""
-        update.message.reply_text("System Management System\n1. Entity Management\n2. Model Management"
+        update.message.reply_text("System Management System\n1. Entity Management\n2. Dot Management"
                                   "\n3. Model Synthesis\n4. Execution Management\n0. Exit")
 
 
@@ -50,29 +50,29 @@ def help(update, context):
 def echo(update, context):
     """Echo the user message."""
     if Remote_control.operation_TF:
-        Remote_control.setting_step(update)
+        Remote_control.setting_step(update, context)
     else:
         if update.message.text[0] == "1":
             Remote_control.STATUS += "1"
-            Remote_control.print_current_menu(update, 1)
+            Remote_control.print_current_menu(update, context, 1)
         elif update.message.text[0] == "2":
             Remote_control.STATUS += "2"
-            Remote_control.print_current_menu(update, 2)
+            Remote_control.print_current_menu(update, context, 2)
         elif update.message.text[0] == "3":
             Remote_control.STATUS += "3"
-            Remote_control.print_current_menu(update, 3)
+            Remote_control.print_current_menu(update, context, 3)
         elif update.message.text[0] == "4":
             Remote_control.STATUS += "4"
-            Remote_control.print_current_menu(update, 4)
+            Remote_control.print_current_menu(update, context, 4)
         elif update.message.text[0] == "5":
             Remote_control.STATUS += "5"
-            Remote_control.print_current_menu(update, 5)
+            Remote_control.print_current_menu(update, context, 5)
         elif update.message.text[0] == "0":
             Remote_control.STATUS = Remote_control.STATUS[:-1]
             if Remote_control.STATUS == "":
                 start(update, context)
             else:
-                Remote_control.print_current_menu(update, int(Remote_control.STATUS[-1]))
+                Remote_control.print_current_menu(update, context, int(Remote_control.STATUS[-1]))
         else:
             update.message.reply_text("please type right number")
 
