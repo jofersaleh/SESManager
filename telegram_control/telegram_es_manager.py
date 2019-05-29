@@ -28,6 +28,7 @@ class telegram_entityManager:
 
         self.pes = None
         self.ra = None
+
     def make_db(self):
         self. entity_db = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
         for _file in self.entity_db:
@@ -1126,7 +1127,6 @@ class telegram_entityManager:
             if update.message.text in self.model_db.keys():
                 self.selected = update.message.text
                 model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
-                # print(model)
                 self.load_entity(self.selected)
                 self.print_port_information(update, model)
                 update.message.reply_text("Type external input port that you want to delete")
@@ -1502,13 +1502,14 @@ class telegram_entityManager:
         elif self.operation_count == 6:
             for entity in self.pes.entity_list:
                 if entity[0] == self.char_memo_1:
-                    entity[1] = update.message.text
+                    entity[1] = int(update.message.text)
                     update.message.reply_text("Enter anything to continue")
                     self.operation_count += 1
 
         elif self.operation_count == 7:
             if len(self.list_memo) > 0:
-                self.pes.remove_entity(self.list_memo)
+                self.pes.core_attribute.remove_entity(self.list_memo)
+                self.list_memo = []
             self.pes.entity_list = self.pes.check_validity()
             if not len(self.pes.entity_list) == 0:
                 fmt = "{name: <10}\t{arity: <5}\t{opt: <5}"
@@ -1528,7 +1529,10 @@ class telegram_entityManager:
                 self.ra = RuntimeAttribute()
                 self.list_memo = self.pes.get_core_attribute().retrieve_entities()
                 self.int_memo = len(self.list_memo)
-            update.message.reply_text("Press enter anything to continue.")
+                update.message.reply_text("Press enter anything to continue.")
+            else:
+                if update.message.text == "n":
+                    update.message.reply_text("Press enter anything to continue.")
 
         elif self.operation_count == 9:
             if not self.int_memo == 0:
@@ -1555,7 +1559,7 @@ class telegram_entityManager:
                                           ": ".format(self.list_memo[len(self.list_memo)-self.int_memo][0]))
 
         elif self.operation_count == 13:
-            self.ra.insert_domain_path((self.list_memo[len(self.list_memo)-self.int_memo][0], update.message.text))
+            self.ra.insert_domain_path(self.list_memo[len(self.list_memo)-self.int_memo][0], update.message.text)
             self.int_memo -= 1
             if not self.int_memo == 0:
                 update.message.reply_text("Press enter anything to continue.")
@@ -1585,5 +1589,5 @@ class telegram_entityManager:
             entity = esm.create_entity_structure()
             entity.set_core_attribute(self.aft_msa)
             esm.create_system(entity)
-            self.pes.export_system_entity_structure(self.pes, pes_path, self.pes.get_name() + ".json")
+            self.esm.export_system_entity_structure(self.pes, pes_path, self.pes.get_name() + ".json")
             self.clear_system()
