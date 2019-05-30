@@ -1431,6 +1431,22 @@ class telegram_entityManager:
                     self.print_entity_db(update)
                     update.message.reply_text("Type name of Entity")
 
+    def delete_entity(self, update):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity to delete")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                os.remove(self.model_db[self.selected])
+                del (self.model_db[self.selected])
+                print("Entity {} deleted".format(self.selected))
+                self.clear_system()
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+
     def interactive_pruning(self, update):
         if self.operation_count == 0:
             self.print_entity_db(update)

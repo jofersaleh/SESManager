@@ -71,10 +71,12 @@ class Remote_telegram:
 
         elif current_num == 2:
             if len(self.STATUS) == 1:
-                update.message.reply_text("1. See entity by dot \n 0. Exit")
+                update.message.reply_text("1. See entity by dot \n 2. See coupling by dot \n 0. Exit")
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
                     self.es_operation_start(update, context)
+                elif self.STATUS[0] == "2":
+                    self.dot_operation_start(update, context)
                 elif self.STATUS[0] == "4":
                     self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
@@ -163,6 +165,8 @@ class Remote_telegram:
                     self.es_manager.create_option(update)
                 elif self.STATUS == "12":
                     self.es_manager.read_option(update)
+                elif self.STATUS == "14":
+                    self.es_manager.delete_entity(update)
             elif len(self.STATUS) == 3:
                 if self.STATUS == "131":
                     self.es_manager.update_option_addenti(update)
@@ -207,6 +211,8 @@ class Remote_telegram:
         elif self.STATUS[0] == "2":
             if self.STATUS == "21":
                 self.dot_manager.print_entity_dot(update, context)
+            elif self.STATUS == "22":
+                self.dot_manager.print_coupling_dot(update, context)
 
         elif self.STATUS[0] == "3":
             self.es_manager.interactive_pruning(update)

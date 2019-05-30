@@ -1,6 +1,6 @@
 import pydot
 from system_manager.system_manager import *
-from io import BytesIO, StringIO
+from io import BytesIO
 from graphviz import Digraph
 from PIL import Image
 #from IPython.core.display import Image
@@ -87,6 +87,17 @@ class telegram_dotManager:
             st += fmt.format(k, v) + "\n"
         update.message.reply_text(st)
 
+    def send_dot_telegram(self, user_dot, update, context):
+        user_dot.format = 'png'
+        image_render = user_dot.render(view=False)
+        img = Image.open(image_render)
+        img = img.convert('RGB')
+        bio = BytesIO()
+        bio.name = 'image.jpeg'
+        img.save(bio, 'JPEG')
+        bio.seek(0)
+        context.bot.send_photo(chat_id=update.message.chat_id, photo=bio)
+
     def print_entity_dot(self, update, context):
         if self.operation_count == 0:
             self.print_entity_db(update)
@@ -95,33 +106,87 @@ class telegram_dotManager:
         elif self.operation_count == 1:
             if update.message.text in self.model_db.keys():
                 self.selected = update.message.text
-                model = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
                 self.load_entity(self.selected)
                 command = Digraph(comment=self.entity.entity_name)
-                command.node('R', self.entity.entity_name)
-                edge_lst = []
-                for i in range(len(self.aft_msa.entity_list)):
-                    command.node(str(i), self.aft_msa.entity_list[i][0])
-                    _str = "R"
-                    _str += str(i)
-                    edge_lst.append(_str)
-                print(edge_lst)
-                command.edges(edge_lst)
+                command.node('R', self.entity.entity_name, shape="box")
 
-                '''
-                command.edge('hello','world')
-                command.node('A', 'Hello')
-                command.node('B', 'World')
-                command.edges(['AB'])
-                print(type(command))
-                '''
-                command.format = 'png'
-                ABC = command.render(view=False)
-                img = Image.open(ABC)
-                img = img.convert('RGB')
-                bio = BytesIO()
-                bio.name = 'image.jpeg'
-                img.save(bio, 'JPEG')
-                bio.seek(0)
-                context.bot.send_photo(chat_id=update.message.chat_id, photo=bio)
+                for i in range(len(self.aft_msa.entity_list)):
+                    if self.aft_msa.entity_list[i][2]:
+                        command.node(str(i), self.aft_msa.entity_list[i][0])
+                    else:
+                        command.node(str(i), self.aft_msa.entity_list[i][0], shape="doublecircle")
+
+                    command.node(str(i) + "a", self.aft_msa.entity_list[i][1])
+                    command.edge("R", str(i))
+                    command.edge(str(i), str(i)+"a", style="invis")
+
+                self.send_dot_telegram(command, update, context)
                 self.clear_system()
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
+
+    def print_coupling_dot(self, update, context):
+        if self.operation_count == 0:
+            self.print_entity_db(update)
+            update.message.reply_text("Type name of Entity")
+            self.operation_count += 1
+        elif self.operation_count == 1:
+            if update.message.text in self.model_db.keys():
+                self.selected = update.message.text
+                self.load_entity(self.selected)
+                command = Digraph(comment=self.entity.entity_name)
+                command.attr(rankdir='LR')
+                command.node('externalIn', "External Input", shape="box", color="red")
+                command.node('externalOut', "External Output", shape="box", color="skyblue")
+                command.node('R', self.entity.entity_name, shape="box", style="bold")
+
+                if self.aft_msa.entity_list is not None:
+                    for item in self.aft_msa.entity_list:
+                        if item[2]:
+                            command.node(item[0], item[0], shape="circle")
+                        else:
+                            command.node(item[0], item[0], shape="doublecircle")
+
+                if self.aft_msa.external_input_map is not None:
+                    i = 0
+                    for keys, values in self.aft_msa.external_input_map.items():
+                        command.node(keys+"exin"+str(i), keys, shape="rarrow", style='filled', color='red')
+                        j = 0
+                        for item in values:
+                            command.node(keys+item[1]+"in"+str(j), item[1], shape="rarrow")
+                            command.edge(keys+"exin"+str(i), keys+item[1]+"in"+str(j))
+                            command.edge(keys+item[1]+"in"+str(j), item[0], style="dotted")
+                            j += 1
+                        i += 1
+
+                if self.aft_msa.internal_coupling_map_tuple is not None:
+                    i = 0
+                    for keys, values in self.aft_msa.internal_coupling_map_tuple.items():
+                        command.node(keys[1] + "internalOut"+str(i), keys[1], shape="rarrow")
+                        j = 0
+                        for item in values:
+                            command.node(keys[1] + item[1] +"internalIn"+str(i)+str(j), item[1], shape="rarrow")
+                            command.edge(keys[0], keys[1] + "internalOut"+str(i), style="dotted")
+                            command.edge(keys[1] + "internalOut"+str(i), keys[1] + item[1] +"internalIn"+str(i)+str(j))
+                            command.edge(keys[1] + item[1] +"internalIn"+str(i)+str(j), item[0], style="dotted")
+                            j += 1
+                        i += 1
+
+                if self.aft_msa.external_output_map is not None:
+                    i = 0
+                    for keys, values in self.aft_msa.external_output_map.items():
+                        command.node(keys+"exout"+str(i), keys, shape="rarrow", style='filled', color='skyblue')
+                        j = 0
+                        for item in values:
+                            command.node(keys + item[1] + "out"+str(j), item[1], shape="rarrow")
+                            command.edge(item[0], keys + item[1] + "out"+str(j), style="dotted")
+                            command.edge(keys+item[1]+"out"+str(j), keys+"exout"+str(i))
+                            j += 1
+                        i += 1
+
+                self.send_dot_telegram(command, update, context)
+                self.clear_system()
+            else:
+                update.message.reply_text("[ERR] Entity Not Found")
+                update.message.reply_text("Type name of Entity")
