@@ -1,3 +1,5 @@
+import pymongo
+
 from system_manager.system_manager import *
 import os
 
@@ -28,6 +30,7 @@ class telegram_entityManager:
 
         self.pes = None
         self.ra = None
+        self.mongo = None
 
     def make_db(self):
         self. entity_db = [f for f in listdir(self.entity_path) if isfile(join(self.entity_path, f))]
@@ -1458,8 +1461,13 @@ class telegram_entityManager:
                 self.load_entity(self.selected)
                 root_entity = self.sm.esm.import_system_entity_structure(self.model_db[self.selected])
                 self.pes = root_entity.clone()
-                self.pes.set_name("pruned_" + self.pes.get_name())
+                self.pes.set_name("pruned_" + update.message.text)
                 self.pes.entity_list = self.pes.check_validity()
+
+                conn = pymongo.MongoClient('localhost', 27017)
+                db = conn.get_database('pes_db')
+                self.mongo = db.get_collection("pruned_" + update.message.text)
+
                 update.message.reply_text("Type anything to process")
                 self.operation_count += 1
             else:
@@ -1606,4 +1614,9 @@ class telegram_entityManager:
             entity.set_core_attribute(self.aft_msa)
             esm.create_system(entity)
             self.esm.export_system_entity_structure(self.pes, pes_path, self.pes.get_name() + ".json")
+
+            for entity in entities:
+                self.mongo.insert_one\
+                    ({'name': entity[0], 'arity': entity[1], 'opt': entity[2]})
             self.clear_system()
+            self.mongo = None
