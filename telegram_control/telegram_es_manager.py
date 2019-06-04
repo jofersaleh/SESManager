@@ -94,7 +94,7 @@ class telegram_entityManager:
             self.operation_count += 1
             return True
         else:
-            update.message.reply_text("please type only y or n")
+            update.message.reply_text("[ERR] Please type only y or n")
             return False
 
     def YN_nextstep_menu(self, update, nextstep_num):
@@ -105,7 +105,7 @@ class telegram_entityManager:
             self.operation_count += nextstep_num
             return False
         else:
-            update.message.reply_text("please type only y or n")
+            update.message.reply_text("[ERR] Please type only y or n")
             return False
 
     def Chk_int(self, update, _num):
@@ -113,7 +113,7 @@ class telegram_entityManager:
             int(_num)
             return True
         except ValueError:
-            update.message.reply_text("please type int")
+            update.message.reply_text("[ERR] Please type int")
             return False
 
     def print_entity_db(self,update):
@@ -161,18 +161,18 @@ class telegram_entityManager:
 
     def create_option(self, update):
         if self.operation_count == 0:
-            update.message.reply_text("Type name of Entity")
+            update.message.reply_text("Please give me the name of root Entity")
             self.operation_count += 1
             return
         elif self.operation_count == 1:
             self.glob_lst["name"] = update.message.text
-            update.message.reply_text("How many input port did system need")
+            update.message.reply_text("Please give me the number of input port")
             self.operation_count += 1
 
         elif self.operation_count == 2:
             if self.Chk_int(update, update.message.text):
                 self.glob_lst["num_input_port"] = update.message.text
-                update.message.reply_text("How many output port did system need")
+                update.message.reply_text("Please give me the number of output port")
                 self.operation_count += 1
 
         elif self.operation_count == 3:
@@ -186,7 +186,7 @@ class telegram_entityManager:
                 self.glob_lst["entities name"].append(update.message.text)
             else:
                 self.glob_lst["entities name"] = [update.message.text]
-            update.message.reply_text("Type number of arity")
+            update.message.reply_text("Enter the number of attribute")
             self.operation_count += 1
 
         elif self.operation_count == 5:
@@ -195,7 +195,7 @@ class telegram_entityManager:
                     self.glob_lst["attribute number"].append(update.message.text)
                 else:
                     self.glob_lst["attribute number"] = [update.message.text]
-                update.message.reply_text("is this entity optional? (y/n)")
+                update.message.reply_text("Is this entity optional? (y/n)")
                 self.operation_count += 1
 
         elif self.operation_count == 6:
@@ -214,20 +214,21 @@ class telegram_entityManager:
                     self.glob_lst["optional"] = [False]
                 update.message.reply_text("Did you need more entity? (y/n)")
             else:
-                update.message.reply_text("please type only y or n")
+                update.message.reply_text("Please type only y or n")
 
         elif self.operation_count == 7:
             print(self.glob_lst)
             if self.YN_again_menu(update, 3):
-                update.message.reply_text("did you want to make external input port? (y/n)")
+                update.message.reply_text("Did you want to make external input port? (y/n)")
             else:
                 if update.message.text == "y":
                     update.message.reply_text("What is the entity name?")
 
         elif self.operation_count == 8:
             if self.YN_nextstep_menu(update, 5):
-                update.message.reply_text("number of input port :" + self.glob_lst["num_input_port"])
-                update.message.reply_text("type the 'number' of input port that you will use for external input port")
+                update.message.reply_text("Number of input port :" + self.glob_lst["num_input_port"])
+                update.message.reply_text("What is the 'number' of input port that you will use "
+                                          "for external input port")
             else:
                 if update.message.text == "n":
                     update.message.reply_text("did you want to make external output port? (y/n)")
@@ -254,10 +255,10 @@ class telegram_entityManager:
                     self.glob_lst["ex_in_entity"] = [update.message.text]
                 update.message.reply_text("number of input port :" + self.glob_lst["num_input_port"])
                 update.message.reply_text(
-                    "Type the 'number' of input port that you will use for " + update.message.text + " input port")
+                    "What is the 'number' of input port that you will use for " + update.message.text + " input port")
                 self.operation_count += 1
             else:
-                update.message.reply_text("please type name that you create")
+                update.message.reply_text("Please type name that you create")
 
         elif self.operation_count == 11:
             if self.Chk_int(update, update.message.text):
@@ -268,27 +269,28 @@ class telegram_entityManager:
                     else:
                         self.glob_lst["ex_in_portenti"] = [port_num]
                     self.operation_count += 1
-                    update.message.reply_text("did you need more connection? (y/n)")
+                    update.message.reply_text("Did you need more connection? (y/n)")
                 else:
-                    update.message.reply_text("please type again")
+                    update.message.reply_text("Please type again")
 
         elif self.operation_count == 12:
             print(self.glob_lst)
             if self.YN_again_menu(update, 3):
-                update.message.reply_text("did you want to make external output port? (y/n)")
+                update.message.reply_text("Did you want to make external output port? (y/n)")
             else:
                 if update.message.text == "y":
-                    update.message.reply_text("number of input port :" + str(self.glob_lst["num_input_port"]))
+                    update.message.reply_text("Number of input port :" + str(self.glob_lst["num_input_port"]))
                     update.message.reply_text(
-                        "type the 'number' of input port that you will use for external input port")
+                        "What is the 'number' of input port that you will use for external input port")
 
         elif self.operation_count == 13:
             if self.YN_nextstep_menu(update, 5):
-                update.message.reply_text("number of output port :" + str(self.glob_lst["num_output_port"]))
-                update.message.reply_text("type the 'number' of output port that you will use for external output port")
+                update.message.reply_text("Number of output port :" + str(self.glob_lst["num_output_port"]))
+                update.message.reply_text("What is the 'number' of output port that you will use for"
+                                          " external output port")
             else:
                 if update.message.text == "n":
-                    update.message.reply_text("did you want to make internal port? (y/n)")
+                    update.message.reply_text("Did you want to make internal port? (y/n)")
 
         elif self.operation_count == 14:
             if self.Chk_int(update, update.message.text):
@@ -299,10 +301,10 @@ class telegram_entityManager:
                     else:
                         self.glob_lst["ex_out_portnum"] = [port_num]
                     self.operation_count += 1
-                    update.message.reply_text("created entities: " + str(self.glob_lst["entities name"]))
-                    update.message.reply_text("choose entity to connect with output port")
+                    update.message.reply_text("Created entities: " + str(self.glob_lst["entities name"]))
+                    update.message.reply_text("Choose entity to connect with output port")
                 else:
-                    update.message.reply_text("please type again")
+                    update.message.reply_text("Please type again")
 
         elif self.operation_count == 15:
             if update.message.text in self.glob_lst["entities name"]:
@@ -310,12 +312,12 @@ class telegram_entityManager:
                     self.glob_lst["ex_out_entity"].append(update.message.text)
                 else:
                     self.glob_lst["ex_out_entity"] = [update.message.text]
-                update.message.reply_text("number of output port :" + str(self.glob_lst["num_output_port"]))
+                update.message.reply_text("Number of output port :" + str(self.glob_lst["num_output_port"]))
                 update.message.reply_text(
-                    "Type the 'number' of output port that you will use for " + update.message.text + " output port")
+                    "Enter the 'number' of output port that you will use for " + update.message.text + " output port")
                 self.operation_count += 1
             else:
-                update.message.reply_text("please type name that you create")
+                update.message.reply_text("Please type name that you create")
 
         elif self.operation_count == 16:
             if self.Chk_int(update, update.message.text):
@@ -326,24 +328,24 @@ class telegram_entityManager:
                     else:
                         self.glob_lst["ex_out_portenti"] = [port_num]
                     self.operation_count += 1
-                    update.message.reply_text("did you need more connection? (y/n)")
+                    update.message.reply_text("Did you need more connection? (y/n)")
                 else:
-                    update.message.reply_text("please type again")
+                    update.message.reply_text("Please type again")
 
         elif self.operation_count == 17:
             print(self.glob_lst)
             if self.YN_again_menu(update, 3):
-                update.message.reply_text("did you want to make internal port? (y/n)")
+                update.message.reply_text("Did you want to make internal port? (y/n)")
             else:
                 if update.message.text == "y":
-                    update.message.reply_text("number of output port :" + str(self.glob_lst["num_output_port"]))
+                    update.message.reply_text("Number of output port :" + str(self.glob_lst["num_output_port"]))
                     update.message.reply_text(
-                        "type the 'number' of output port that you will use for external output port")
+                        "What is the 'number' of output port that you will use for external output port")
 
         elif self.operation_count == 18:
             if self.YN_nextstep_menu(update, 5):
-                update.message.reply_text("created entities: " + str(self.glob_lst["entities name"]))
-                update.message.reply_text("choose first entity out to other")
+                update.message.reply_text("Created entities: " + str(self.glob_lst["entities name"]))
+                update.message.reply_text("Choose first entity out to other")
             else:
                 if update.message.text == "n":
                     esm = EntityManager()
