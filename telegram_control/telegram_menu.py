@@ -1,6 +1,7 @@
 from telegram_control.telegram_es_manager import *
 from telegram_control.telegram_execution_manager import *
 from telegram_control.telegram_pydot import *
+from telegram_control.telegram_synthesis import *
 
 def check_operation(count):
     if count == 0:
@@ -16,6 +17,7 @@ class Remote_telegram:
         self.es_manager = None
         self.dot_manager = None
         self.em_manager = None
+        self.synthesis_manager = None
 
     def es_operation_start(self, update, context):
         print("!")
@@ -28,6 +30,13 @@ class Remote_telegram:
         self.dot_manager = telegram_dotManager()
         self.setting_step(update, context)
         self.operation_TF = True
+
+    def synthesis_operation_start(self, update, context):
+        print("!")
+        self.synthesis_manager = telegram_synthesisManager()
+        self.setting_step(update, context)
+        self.operation_TF = True
+
 
     def em_operation_start(self, update, context):
         print("!")
@@ -46,6 +55,8 @@ class Remote_telegram:
                     self.es_operation_start(update, context)
                 elif self.STATUS[0] == "2":
                     self.dot_operation_start(update, context)
+                elif self.STATUS[0] == "3":
+                    self.synthesis_operation_start(update, context)
                 elif self.STATUS[0] == "4":
                     self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
@@ -78,6 +89,8 @@ class Remote_telegram:
                     self.es_operation_start(update, context)
                 elif self.STATUS[0] == "2":
                     self.dot_operation_start(update, context)
+                elif self.STATUS[0] == "3":
+                    self.synthesis_operation_start(update, context)
                 elif self.STATUS[0] == "4":
                     self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
@@ -104,13 +117,16 @@ class Remote_telegram:
 
         elif current_num == 3:
             if len(self.STATUS) == 1:
-                self.es_operation_start(update, context)
+                update.message.reply_text("1. Interactive Pruning\n2.Print pruned entity\n3.Delete pruned entity\n"
+                                          "4.Update pruned entity \n0. Exit")
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
                     update.message.reply_text("What did you want to modify entity\n1. Add Entity\n2. Delete Entity"
                                               "\n3. Modify inside of Entity\n4. Modify Port\n0. Exit")
                 elif self.STATUS[0] == "2":
                     self.dot_operation_start(update, context)
+                elif self.STATUS[0] == "3":
+                    self.synthesis_operation_start(update, context)
                 elif self.STATUS[0] == "4":
                     self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
@@ -140,6 +156,8 @@ class Remote_telegram:
             elif len(self.STATUS) == 2:
                 if self.STATUS[0] == "1":
                     self.es_operation_start(update, context)
+                elif self.STATUS[0] == "3":
+                    self.synthesis_operation_start(update, context)
                 elif self.STATUS[0] == "4":
                     self.em_operation_start(update, context)
             elif len(self.STATUS) == 3:
@@ -211,6 +229,17 @@ class Remote_telegram:
                     elif self.STATUS == "13432":
                         self.es_manager.update_option_modiport_change_output(update)
 
+            if self.es_manager is not None:
+                if check_operation(self.es_manager.operation_count):
+                    # To go back to menu
+                    self.operation_TF = False
+                    self.es_manager = None
+                    self.STATUS = self.STATUS[:-1]
+                    if len(self.STATUS) == 0:
+                        update.message.reply_text("Please type /start to restart")
+                    else:
+                        self.print_current_menu(update, context, int(self.STATUS[-1]))
+
         elif self.STATUS[0] == "2":
             if self.STATUS == "21":
                 self.dot_manager.print_entity_dot(update, context)
@@ -219,8 +248,35 @@ class Remote_telegram:
             elif self.STATUS == "23":
                 self.dot_manager.print_coupling_dot_UD(update, context)
 
+            if self.dot_manager is not None:
+                if check_operation(self.dot_manager.operation_count):
+                    self.operation_TF = False
+                    self.dot_manager = None
+                    self.STATUS = self.STATUS[:-1]
+                    if len(self.STATUS) == 0:
+                        update.message.reply_text("Please type /start to restart")
+                    else:
+                        self.print_current_menu(update, context, int(self.STATUS[-1]))
+
         elif self.STATUS[0] == "3":
-            self.es_manager.interactive_pruning(update)
+            if self.STATUS == "31":
+                self.synthesis_manager.interactive_pruning(update)
+            elif self.STATUS == "32":
+                self.synthesis_manager.print_pruned_entity(update)
+            elif self.STATUS == "33":
+                self.synthesis_manager.delete_pruned_entity(update)
+            elif self.STATUS == "34":
+                self.synthesis_manager.update_pruned_entity_name(update)
+
+            if self.synthesis_manager is not None:
+                if check_operation(self.synthesis_manager.operation_count):
+                    self.operation_TF = False
+                    self.synthesis_manager = None
+                    self.STATUS = self.STATUS[:-1]
+                    if len(self.STATUS) == 0:
+                        update.message.reply_text("Please type /start to restart")
+                    else:
+                        self.print_current_menu(update, context, int(self.STATUS[-1]))
 
         elif self.STATUS[0] == "4":
             if self.STATUS == "41":
@@ -232,33 +288,18 @@ class Remote_telegram:
             elif self.STATUS == "44":
                 self.em_manager._sys_synthesis(update)
 
-        if self.es_manager is not None:
-            if check_operation(self.es_manager.operation_count):
-                #To go back to menu
-                self.operation_TF = False
-                self.es_manager = None
-                self.STATUS = self.STATUS[:-1]
-                if len(self.STATUS) == 0:
-                    update.message.reply_text("Please type /start to restart")
-                else:
-                    self.print_current_menu(update, context, int(self.STATUS[-1]))
-        elif self.em_manager is not None:
-            if check_operation(self.em_manager.operation_count):
-                self.operation_TF = False
-                self.em_manager = None
-                self.STATUS = self.STATUS[:-1]
-                if len(self.STATUS) == 0:
-                    update.message.reply_text("Please type /start to restart")
-                else:
-                    self.print_current_menu(update, context, int(self.STATUS[-1]))
+            if self.em_manager is not None:
+                if check_operation(self.em_manager.operation_count):
+                    self.operation_TF = False
+                    self.em_manager = None
+                    self.STATUS = self.STATUS[:-1]
+                    if len(self.STATUS) == 0:
+                        update.message.reply_text("Please type /start to restart")
+                    else:
+                        self.print_current_menu(update, context, int(self.STATUS[-1]))
 
-        elif self.dot_manager is not None:
-            if check_operation(self.dot_manager.operation_count):
-                self.operation_TF = False
-                self.dot_manager = None
-                self.STATUS = self.STATUS[:-1]
-                if len(self.STATUS) == 0:
-                    update.message.reply_text("Please type /start to restart")
-                else:
-                    self.print_current_menu(update, context, int(self.STATUS[-1]))
+
+
+
+
 

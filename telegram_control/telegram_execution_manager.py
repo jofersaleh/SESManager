@@ -90,6 +90,8 @@ class telegram_executionManager:
                         instance_map[model], tup[0][0], instance_map[tup[0][1][0]], tup[0][1][1])
 
                 SystemSimulator().get_engine(entity_structure.get_name()).simulate()
+                #update.message.reply_text(
+                #    SystemSimulator().get_engine(entity_structure.get_name()).handle_external_output_event())
                 self.clear_system()
 
             else:
