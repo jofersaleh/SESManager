@@ -282,7 +282,7 @@ class Remote_telegram:
             if self.STATUS == "41":
                 self.em_manager._list_pes(update)
             elif self.STATUS == "42":
-                self.em_manager._sim_start(update)
+                self.em_manager._sim_start(update, context)
             elif self.STATUS == "43":
                 self.em_manager._sys_exec(update)
             elif self.STATUS == "44":

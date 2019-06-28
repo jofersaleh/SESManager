@@ -1,5 +1,6 @@
 from system_manager.system_manager import *
 import os
+import sys
 import pymongo
 
 
@@ -59,7 +60,7 @@ class telegram_executionManager:
             st += fmt.format(k, v) + "\n"
         update.message.reply_text(st)
 
-    def _sim_start(self, update):
+    def _sim_start(self, update, context):
         if self.operation_count == 0:
             fmt = "{0: <13}\t{1: <13}"
             update.message.reply_text(fmt.format("PES Name", "Path"))
@@ -72,6 +73,10 @@ class telegram_executionManager:
             return
         elif self.operation_count == 1:
             if update.message.text in self.pes_db_map:
+                f = open("telegram_control/output.txt", 'w')
+                stdout = sys.stdout
+                sys.stdout = f
+
                 entity_structure = \
                 EntityManager.static_import_system_entity_structure(self.pes_db_map[update.message.text])
                 SystemSimulator().register_engine(entity_structure.get_name())
@@ -90,9 +95,11 @@ class telegram_executionManager:
                         instance_map[model], tup[0][0], instance_map[tup[0][1][0]], tup[0][1][1])
 
                 SystemSimulator().get_engine(entity_structure.get_name()).simulate()
-                #update.message.reply_text(
-                #    SystemSimulator().get_engine(entity_structure.get_name()).handle_external_output_event())
                 self.clear_system()
+                sys.stdout = stdout
+                f.close()
+                f = open("telegram_control/output.txt", "rb")
+                context.bot.send_document(chat_id=update.message.chat_id, document=f)
 
             else:
                 update.message.reply_text("[ERR] Entity Not Found")
