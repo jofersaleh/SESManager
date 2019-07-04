@@ -124,7 +124,7 @@ class telegram_entityManager:
         update.message.reply_text(st)
 
     def print_entity_information(self, update, target):
-        fmt = "{0: <10}{name: <15}\t{arity: <5}\t{opt: <5}"
+        fmt = "{0: <10}{name: <10}\t{arity: <5}\t{opt: <5}"
         _str = ""
         _str += "Name: " + target.entity_name + "\n"
         _str += fmt.format("Entities: ", name="Name", arity="Arity", opt="Optional") + "\n"

@@ -137,51 +137,76 @@ class telegram_dotManager:
                 self.load_entity(self.selected)
                 command = Digraph(comment=self.entity.entity_name)
                 command.attr(rankdir='LR')
-                command.node('externalIn', "External Input", shape="box", color="plum1")
-                command.node('externalOut', "External Output", shape="box", color="skyblue")
-                command.node('R', self.entity.entity_name, shape="box", style="bold")
+                # command.node('externalIn', "External Input", shape="invhouse", color="red")
+                # command.node('externalOut', "External Output", shape="invhouse", color="skyblue")
+                # command.node('R', self.entity.entity_name, shape="box", style="bold")
+                entity_height = "0.3"
+                entity_width = "1"
+                entity_fontsize = "15"
+                port_height = "0.1"
+                port_width = "0.1"
+                ex_port_height = "0.3"
+                ex_port_width = "0.3"
+                port_shape = "point"
+                port_fontsize = "1.5"
 
                 if self.aft_msa.entity_list is not None:
                     for item in self.aft_msa.entity_list:
                         if item[2]:
-                            command.node(item[0], item[0], shape="box")
+                            command.node(item[0], item[0], shape="box", style="bold", height=entity_height,
+                                         width=entity_width, fontsize=entity_fontsize)
                         else:
-                            command.node(item[0], item[0], shape="polygon")
+                            command.node(item[0], item[0], shape="box", style="bold", height=entity_height,
+                                         width=entity_width, fontsize=entity_fontsize)
 
                 if self.aft_msa.external_input_map is not None:
                     i = 0
                     for keys, values in self.aft_msa.external_input_map.items():
-                        command.node(keys+"exin"+str(i), keys, shape="rarrow", style='filled', color='plum1')
+                        command.node(keys + "exin" + str(i), "", shape="invhouse",
+                                     style='filled', color='plum1', height=ex_port_height, width=ex_port_width)
                         j = 0
                         for item in values:
-                            command.node(keys+item[1]+"in"+str(j), item[1], shape="rarrow")
-                            command.edge(keys+"exin"+str(i), keys+item[1]+"in"+str(j))
-                            command.edge(keys+item[1]+"in"+str(j), item[0], style="dotted")
+                            # item[1]
+                            command.node(keys + item[1] + "in" + str(j), "", shape=port_shape, height=port_height,
+                                         width=port_width)
+                            command.edge(keys + "exin" + str(i), keys + item[1] + "in" + str(j), label=" " + keys)
+                            command.edge(keys + item[1] + "in" + str(j), item[0], label=" " + item[1])
                             j += 1
                         i += 1
 
                 if self.aft_msa.internal_coupling_map_tuple is not None:
                     i = 0
                     for keys, values in self.aft_msa.internal_coupling_map_tuple.items():
-                        command.node(keys[1] + "internalOut"+str(i), keys[1], shape="rarrow")
+                        # keys[1]
                         j = 0
                         for item in values:
-                            command.node(keys[1] + item[1] +"internalIn"+str(i)+str(j), item[1], shape="rarrow")
-                            command.edge(keys[0], keys[1] + "internalOut"+str(i), style="dotted")
-                            command.edge(keys[1] + "internalOut"+str(i), keys[1] + item[1] +"internalIn"+str(i)+str(j))
-                            command.edge(keys[1] + item[1] +"internalIn"+str(i)+str(j), item[0], style="dotted")
+                            command.node(keys[1] + "internalOut" + str(i)+str(j), "", shape=port_shape, height=port_height,
+                                         width=port_width)
+                            # item[1]
+                            # command.node(keys[1] + item[1] +"internalIn"+str(i)+str(j), item[1], shape=port_shape,
+                            #             height=port_height, width=port_width)
+                            command.edge(keys[0], keys[1] + "internalOut" + str(i)+str(j), style="dotted", label=" " + keys[1])
+                            # command.edge(keys[1] + "internalOut"+str(i),
+                            #             keys[1] + item[1] +"internalIn"+str(i)+str(j), style="dotted")
+                            command.edge(keys[1] + "internalOut" + str(i)+str(j), item[0], label=" " + item[1])
                             j += 1
                         i += 1
 
                 if self.aft_msa.external_output_map is not None:
                     i = 0
                     for keys, values in self.aft_msa.external_output_map.items():
-                        command.node(keys+"exout"+str(i), keys, shape="rarrow", style='filled', color='skyblue')
+                        # keys
+                        command.node(keys + "exout" + str(i), "", shape="invhouse", style='filled', color='skyblue',
+                                     height=ex_port_height, width=ex_port_width)
                         j = 0
                         for item in values:
-                            command.node(keys + item[1] + "out"+str(j), item[1], shape="rarrow")
-                            command.edge(item[0], keys + item[1] + "out"+str(j), style="dotted")
-                            command.edge(keys+item[1]+"out"+str(j), keys+"exout"+str(i))
+                            # item1
+                            command.node(keys + item[1] + "out" + str(j), "", shape=port_shape,
+                                         height=port_height, width=port_width)
+                            command.edge(item[0], keys + item[1] + "out" + str(j), style="dotted",
+                                         label=" " + keys)
+                            command.edge(keys + item[1] + "out" + str(j), keys + "exout" + str(i), style="dotted",
+                                         label=" " + item[1])
                             j += 1
                         i += 1
 
@@ -241,18 +266,21 @@ class telegram_dotManager:
                 if self.aft_msa.internal_coupling_map_tuple is not None:
                     i = 0
                     for keys, values in self.aft_msa.internal_coupling_map_tuple.items():
+                        print(keys)
+                        print(values)
                         #keys[1]
-                        command.node(keys[1] + "internalOut"+str(i), "", shape=port_shape, height=port_height,
-                                     width=port_width)
                         j = 0
                         for item in values:
+                            command.node(keys[1] + "internalOut" + str(i) + str(j), "", shape=port_shape,
+                                         height=port_height,
+                                         width=port_width)
                             #item[1]
                             #command.node(keys[1] + item[1] +"internalIn"+str(i)+str(j), item[1], shape=port_shape,
                             #             height=port_height, width=port_width)
-                            command.edge(keys[0], keys[1] + "internalOut"+str(i), style="dotted", label=" "+keys[1])
+                            command.edge(keys[0], keys[1] + "internalOut"+str(i)+str(j), style="dotted", label=" "+keys[1])
                             #command.edge(keys[1] + "internalOut"+str(i),
                             #             keys[1] + item[1] +"internalIn"+str(i)+str(j), style="dotted")
-                            command.edge(keys[1] + "internalOut"+str(i), item[0], label=" "+item[1])
+                            command.edge(keys[1] + "internalOut"+str(i)+str(j), item[0], label=" "+item[1])
                             j += 1
                         i += 1
 
