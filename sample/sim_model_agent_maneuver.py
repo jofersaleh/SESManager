@@ -27,27 +27,30 @@ class Agent5(BehaviorModelExecutor):
         self.insert_input_port("exin")
         self.insert_input_port("received")
         self.insert_output_port("waypoint")
-        #self.insert_output_port("exout")
+        self.insert_output_port("exout")
 
 
 
     def check_done(self):
-        print("1")
-        if not self.waypoints:
-            return True
-        else:
+        #print("1")
+        if self.waypoints == []:
             return False
+        else:
+            return True
 
 
     def ext_trans(self,port, msg):
-        print("2")
+        #print("2")
         if port == "exin":
-            print("3")
+            #print("3")
             self._cur_state = "SEND"
         elif port == "received":
             if self.check_done():
                 data = msg.retrieve()
+                #print(data[0])
+                #print(self.result)
                 self.result.append(data[0])
+                #print(self.result)
                 self._cur_state = "SEND"
             else:
                 self._cur_state = "REACHED"
@@ -57,23 +60,25 @@ class Agent5(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "SEND":
-            print("6")
-            location = self.waypoints[0]
-            print(location)
-            msg = SysMessage(self.get_name(), "location")
+            #print("6")
+            location = self.waypoints.pop(0)
+            #print(location)
+            msg = SysMessage(self.get_name(), "waypoint")
             msg.insert(location)
             return msg
         elif self._cur_state == "REACHED":
-            msg = SysMessage(self.get_name(), self.result)
-            print("99")
+            msg = SysMessage(self.get_name(), "exout")
+            msg.insert(self.result)
+            #print("99")
             return msg
 
     def int_trans(self):
-        print("66")
         if self._cur_state == "SEND":
             self._cur_state = "WAIT"
         if self.waypoints is None:
             self._cur_state = "REACHED"
+        if self._cur_state == "REACHED":
+            self._cur_state = "IDLE"
 
 
 
@@ -86,7 +91,6 @@ class Maneuver(BehaviorModelExecutor):
         self.insert_state("FINSH", 1)
 
         self.waypoint = None
-        self.result = []
 
         self.pos = [0,0]
         self.vel = 1
@@ -114,7 +118,7 @@ class Maneuver(BehaviorModelExecutor):
             self._cur_state = "IDLE"
 
     def ext_trans(self, port, msg):
-        print("11")
+        #print("11")
         data = msg.retrieve()
         self.waypoint = data[0]
         self._cur_state = "MOVE"
@@ -122,15 +126,14 @@ class Maneuver(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "FINISH":
-            msg = SysMessage(self.get_name(), self.result)
-            msg.insert(self.result)
+            msg = SysMessage(self.get_name(), "send_result")
+            msg.insert(self.pos)
             self.result = []
             return msg
 
     def int_trans(self):
-        print("77")
         if self._cur_state == "MOVE":
-            print("88")
+            #print("88")
             self.move()
         else:
             self._cur_state = "LISTEN"
@@ -165,7 +168,7 @@ SystemSimulator().get_engine("sname").insert_input_port("in")
 SystemSimulator().get_engine("sname").register_entity(h)
 SystemSimulator().get_engine("sname").register_entity(r)
 SystemSimulator().get_engine("sname").coupling_relation(None, "in", h, "exin")
-#SystemSimulator().get_engine("sname").coupling_relation(h, "exout", None, "out")
+SystemSimulator().get_engine("sname").coupling_relation(h, "exout", None, "out")
 SystemSimulator().get_engine("sname").coupling_relation(h, "waypoint", r, "recv")
 SystemSimulator().get_engine("sname").coupling_relation(r, "send_result", h, "received")
 SystemSimulator().get_engine("sname").insert_external_event("in", None)
