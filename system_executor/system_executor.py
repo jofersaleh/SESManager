@@ -116,7 +116,7 @@ class SysExecutor(SysObject, BehaviorModel):
         if msg is not None:
             pair = (obj, msg.get_dst())
             if pair not in self.port_map:
-                self.port_map[pair] = (self.active_obj_map["dc"], "uncaught")
+                self.port_map[pair] = [(self.active_obj_map["dc"], "uncaught")]
 
             for port_pair in self.port_map[pair]:
                 destination = port_pair
