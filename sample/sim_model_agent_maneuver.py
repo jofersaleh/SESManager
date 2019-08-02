@@ -19,10 +19,10 @@ class Agent5(BehaviorModelExecutor):
 
 
         self.init_state("IDLE")
-        self.insert_state("IDLE", 0)
-        self.insert_state("WAIT", 1)
-        self.insert_state("SEND", 1)
-        self.insert_state("REACHED", 1)
+        self.insert_state("IDLE", Infinite)
+        self.insert_state("WAIT", Infinite)
+        self.insert_state("SEND", 0)
+        self.insert_state("REACHED", 0)
 
         self.insert_input_port("exin")
         self.insert_input_port("received")
@@ -69,12 +69,8 @@ class Agent5(BehaviorModelExecutor):
             return msg
 
     def int_trans(self):
-        #print("66")
-        if self._cur_state == "IDLE":
-            print("7")
-            self._cur_state = "SEND"
-            self.output()
-        elif self._cur_state == "SEND":
+        print("66")
+        if self._cur_state == "SEND":
             self._cur_state = "WAIT"
         if self.waypoints is None:
             self._cur_state = "REACHED"
@@ -85,7 +81,7 @@ class Maneuver(BehaviorModelExecutor):
     def __init__(self, instance_time, destruct_time, name, engine_name):
         BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
         self.init_state("LISTEN")
-        self.insert_state("LISTEN", 1)
+        self.insert_state("LISTEN", Infinite)
         self.insert_state("MOVE", 1)
         self.insert_state("FINSH", 1)
 
@@ -132,10 +128,12 @@ class Maneuver(BehaviorModelExecutor):
             return msg
 
     def int_trans(self):
-        #print("77")
+        print("77")
         if self._cur_state == "MOVE":
             print("88")
             self.move()
+        else:
+            self._cur_state = "LISTEN"
 
 
 
