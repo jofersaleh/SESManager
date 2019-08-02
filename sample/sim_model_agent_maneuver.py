@@ -14,8 +14,9 @@ class Agent5(BehaviorModelExecutor):
         print("waypoint: ", self.waypoints)
 
 
-        self.init_state("SEND")
+        self.init_state("IDLE")
         self.insert_state("IDLE", 0)
+        self.insert_state("WAIT", 0)
         self.insert_state("SEND", 1)
         self.insert_state("REACHED", 1)
 
@@ -36,21 +37,24 @@ class Agent5(BehaviorModelExecutor):
         print("2")
         if port == "received":
             self._cur_state = "SEND"
-            print("[{}]Event received from external".format(datetime.datetime.now()))
         else:
             data = msg.retrieve()
             print(data[0])
 
     def output(self):
-        print("3")
-        if self._cur_state == "SEND":
-            self._cur_state = "IDLE"
-            msg = self.waypoints.pop(0)
-            print(str(datetime.datetime.now()) + " Agent Object:")
-            return msg
+        print("5")
+        self._cur_state = "WAIT"
+        location = self.waypoints[0]
+        print(location)
+        msg = SysMessage(self.get_name(), location)
+        print("6")
+        return msg
 
     def int_trans(self):
         print("4")
+        if self._cur_state == "IDLE":
+            print("7")
+            self._cur_state = "SEND"
         if self.waypoints is None:
             self._cur_state = "REACHED"
 
@@ -70,7 +74,7 @@ class Maneuver(BehaviorModelExecutor):
         self.pos = [0,0]
         self.vel = 1
 
-        self.insert_input_port("recv_way")
+        self.insert_input_port("recv")
         self.insert_output_port("send_result")
 
     def check_reached(self, pos0, pos1, error):
@@ -93,8 +97,9 @@ class Maneuver(BehaviorModelExecutor):
             self._cur_state = "IDLE"
 
     def ext_trans(self, port, msg):
+        print("11")
         data = msg.retrieve()
-        self.waypoint = data
+        self.waypoint = data[0]
         self._cur_state = "MOVE"
 
     def output(self):
@@ -133,6 +138,6 @@ SystemSimulator().register_engine("sname")
 
 SystemSimulator().get_engine("sname").register_entity(h)
 SystemSimulator().get_engine("sname").register_entity(r)
-SystemSimulator().get_engine("sname").coupling_relation(h, "waypoint", r, "recv_way")
+SystemSimulator().get_engine("sname").coupling_relation(h, "waypoint", r, "recv")
 SystemSimulator().get_engine("sname").coupling_relation(r, "send_result", h, "received")
 SystemSimulator().get_engine("sname").simulate()
