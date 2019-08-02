@@ -20,14 +20,14 @@ class Agent5(BehaviorModelExecutor):
 
         self.init_state("IDLE")
         self.insert_state("IDLE", 0)
-        self.insert_state("WAIT", 0)
+        self.insert_state("WAIT", 1)
         self.insert_state("SEND", 1)
         self.insert_state("REACHED", 1)
 
         self.insert_input_port("exin")
         self.insert_input_port("received")
         self.insert_output_port("waypoint")
-        self.insert_output_port("exout")
+        #self.insert_output_port("exout")
 
 
 
@@ -57,11 +57,11 @@ class Agent5(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "SEND":
-            self._cur_state = "WAIT"
+            print("6")
             location = self.waypoints[0]
             print(location)
-            msg = SysMessage(self.get_name(), location)
-            print("6")
+            msg = SysMessage(self.get_name(), "location")
+            msg.insert(location)
             return msg
         elif self._cur_state == "REACHED":
             msg = SysMessage(self.get_name(), self.result)
@@ -69,10 +69,13 @@ class Agent5(BehaviorModelExecutor):
             return msg
 
     def int_trans(self):
+        #print("66")
         if self._cur_state == "IDLE":
             print("7")
             self._cur_state = "SEND"
             self.output()
+        elif self._cur_state == "SEND":
+            self._cur_state = "WAIT"
         if self.waypoints is None:
             self._cur_state = "REACHED"
 
@@ -82,7 +85,7 @@ class Maneuver(BehaviorModelExecutor):
     def __init__(self, instance_time, destruct_time, name, engine_name):
         BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
         self.init_state("LISTEN")
-        self.insert_state("LISTEN", 0)
+        self.insert_state("LISTEN", 1)
         self.insert_state("MOVE", 1)
         self.insert_state("FINSH", 1)
 
@@ -123,9 +126,9 @@ class Maneuver(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "FINISH":
-            msg = self.result
+            msg = SysMessage(self.get_name(), self.result)
+            msg.insert(self.result)
             self.result = []
-            self._cur_state = "IDLE"
             return msg
 
     def int_trans(self):
@@ -164,7 +167,7 @@ SystemSimulator().get_engine("sname").insert_input_port("in")
 SystemSimulator().get_engine("sname").register_entity(h)
 SystemSimulator().get_engine("sname").register_entity(r)
 SystemSimulator().get_engine("sname").coupling_relation(None, "in", h, "exin")
-SystemSimulator().get_engine("sname").coupling_relation(h, "exout", None, "out")
+#SystemSimulator().get_engine("sname").coupling_relation(h, "exout", None, "out")
 SystemSimulator().get_engine("sname").coupling_relation(h, "waypoint", r, "recv")
 SystemSimulator().get_engine("sname").coupling_relation(r, "send_result", h, "received")
 SystemSimulator().get_engine("sname").insert_external_event("in", None)
