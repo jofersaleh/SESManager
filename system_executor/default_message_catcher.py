@@ -14,7 +14,6 @@ class DefaultMessageCatcher(BehaviorModelExecutor):
 
     def ext_trans(self, port, msg):
         data = msg.retrieve()
-        print(data[0])
 
     def time_advance(self):
         return Infinite
