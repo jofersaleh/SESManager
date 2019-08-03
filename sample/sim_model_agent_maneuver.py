@@ -32,7 +32,6 @@ class Agent5(BehaviorModelExecutor):
 
 
     def check_done(self):
-        #print("1")
         if self.waypoints == []:
             return False
         else:
@@ -40,17 +39,15 @@ class Agent5(BehaviorModelExecutor):
 
 
     def ext_trans(self,port, msg):
-        #print("2")
         if port == "exin":
-            #print("3")
             self._cur_state = "SEND"
         elif port == "received":
             if self.check_done():
                 data = msg.retrieve()
-                #print(data[0])
-                #print(self.result)
+                print(data[0])
+                print(self.result)
                 self.result.append(data[0])
-                #print(self.result)
+                print(self.result)
                 self._cur_state = "SEND"
             else:
                 self._cur_state = "REACHED"
@@ -60,16 +57,13 @@ class Agent5(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "SEND":
-            #print("6")
             location = self.waypoints.pop(0)
-            #print(location)
             msg = SysMessage(self.get_name(), "waypoint")
             msg.insert(location)
             return msg
         elif self._cur_state == "REACHED":
             msg = SysMessage(self.get_name(), "exout")
             msg.insert(self.result)
-            #print("99")
             return msg
 
     def int_trans(self):
@@ -133,7 +127,6 @@ class Maneuver(BehaviorModelExecutor):
 
     def int_trans(self):
         if self._cur_state == "MOVE":
-            #print("88")
             self.move()
         else:
             self._cur_state = "LISTEN"
@@ -158,11 +151,7 @@ with open('./sample/model_db/Gen5.pkl', 'rb') as f:
 with open('./sample/model_db/Maneuver.pkl', 'rb') as f:
     r = dill.load(f)
 
-#se = SystemSimulator()
-
 SystemSimulator().register_engine("sname")
-#print("!")
-#print(SystemSimulator.get_engine("sname"))
 
 SystemSimulator().get_engine("sname").insert_input_port("in")
 SystemSimulator().get_engine("sname").register_entity(h)
