@@ -5,7 +5,9 @@ from system_executor.system_message import *
 import math
 from random import uniform
 
+
 class Agent5(BehaviorModelExecutor):
+    import copy
     def __init__(self, instance_time, destruct_time, name, engine_name):
         BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
 
@@ -16,7 +18,6 @@ class Agent5(BehaviorModelExecutor):
                           (uniform(0,100), uniform(0,100))]
         print("waypoint: ", self.waypoints)
         self.result = []
-
 
         self.init_state("IDLE")
         self.insert_state("IDLE", Infinite)
@@ -37,7 +38,6 @@ class Agent5(BehaviorModelExecutor):
         else:
             return True
 
-
     def ext_trans(self,port, msg):
         if port == "exin":
             self._cur_state = "SEND"
@@ -46,7 +46,7 @@ class Agent5(BehaviorModelExecutor):
                 data = msg.retrieve()
                 print(data[0])
                 print(self.result)
-                self.result.append(data[0])
+                self.result.append(copy.deepcopy(data[0]))
                 print(self.result)
                 self._cur_state = "SEND"
             else:
@@ -73,7 +73,6 @@ class Agent5(BehaviorModelExecutor):
             self._cur_state = "REACHED"
         if self._cur_state == "REACHED":
             self._cur_state = "IDLE"
-
 
 
 class Maneuver(BehaviorModelExecutor):

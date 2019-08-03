@@ -27,6 +27,7 @@ class Grace(BehaviorModelExecutor):
             print(data[0])
 
     def output(self):
+        print("Grace!")
         if self._cur_state == "Feature":
             msg = SysMessage(self.get_name(), "answer")
             print(str(datetime.datetime.now()) + " Grace feature:")
@@ -70,7 +71,7 @@ class Evenecel(BehaviorModelExecutor):
             print(data[0])
 
     def output(self):
-        print("!")
+        print("Evenecel!")
         if self._cur_state == "Feature":
             msg = SysMessage(self.get_name(), "answer")
             print(str(datetime.datetime.now()) + " Evenecel feature:")
@@ -103,12 +104,17 @@ class Display(BehaviorModelExecutor):
 
     def ext_trans(self, port, msg):
         data = msg.retrieve()
+        print(data)
         if self._cur_state == "MOVE":
             self._cur_state = "Action"
             print("[{0:05}] {1} {2}".format(SystemSimulator().get_engine(self.engine_name).get_global_time(), str(datetime.datetime.now()), str(data[0])))
-
+        else:
+            self._cur_state = "Action"
+            print("[{0:05}] {1} {2}".format(SystemSimulator().get_engine(self.engine_name).get_global_time(),
+                                            str(datetime.datetime.now()), str(data[0])))
 
     def output(self):
+        print("####")
         if self._cur_state == "Action":
             msg = SysMessage(self.get_name(), "information out")
             return msg
