@@ -1,0 +1,144 @@
+{
+	"name": "None",
+	"core_attribute": {
+		"entities": [
+			[
+				"Gen5",
+				"3",
+				false
+			],
+			[
+				"Gen10",
+				"3",
+				false
+			],
+			[
+				"Gen20",
+				"3",
+				false
+			],
+			[
+				"Maneuver5",
+				"3",
+				false
+			],
+			[
+				"Maneuver10",
+				"3",
+				false
+			],
+			[
+				"Maneuver20",
+				"3",
+				false
+			]
+		],
+		"input_ports": [
+			"in",
+			"in2",
+			"in3",
+			"exin",
+			"received",
+			"recv"
+		],
+		"output_ports": [
+			"out",
+			"waypoint",
+			"exout",
+			"send_result"
+		],
+		"external_input": {
+			"in3": [
+				[
+					"Gen20",
+					"exin"
+				]
+			],
+			"in": [
+				[
+					"Gen5",
+					"exin"
+				]
+			],
+			"in2": [
+				[
+					"Gen10",
+					"exin"
+				]
+			]
+		},
+		"external_output": {
+			"out": [
+				[
+					"Gen5",
+					"exout"
+				],
+				[
+					"Gen10",
+					"exout"
+				],
+				[
+					"Gen20",
+					"exout"
+				]
+			]
+		},
+		"internal": {
+			"Gen5": [
+				[
+					"waypoint",
+					[
+						"Maneuver5",
+						"recv"
+					]
+				]
+			],
+			"Maneuver5": [
+				[
+					"send_result",
+					[
+						"Gen5",
+						"received"
+					]
+				]
+			],
+			"Maneuver10":[
+				[
+					"send_result",
+					[
+						"Gen10",
+						"received"
+					]
+				]
+			],
+			"Maneuver20":[
+				[
+					"send_result",
+					[
+						"Gen20",
+						"received"
+					]
+				]
+			],
+			"Gen10": [
+				[
+					"waypoint",
+					[
+						"Maneuver10",
+						"recv"
+					]
+				]
+			],
+			"Gen20": [
+				[
+					"waypoint",
+					[
+						"Maneuver20",
+						"recv"
+					]
+				]
+			]
+		}
+	},
+	"optional_attributes": {}
+}

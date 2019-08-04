@@ -8,5 +8,6 @@ setup(
     license='',
     author='Changbeom Choi',
     author_email='cbchoi@handong.edu',
-    description='Management system for System Entity Structure'
+    description='Management system for System Entity Structure', install_requires=['graphviz', 'Pillow', 'telegram',
+                                                                                   'dill']
 )
