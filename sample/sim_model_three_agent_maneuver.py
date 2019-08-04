@@ -42,12 +42,9 @@ class Agent5(BehaviorModelExecutor):
         if port == "exin":
             self._cur_state = "SEND"
         elif port == "received":
+            data = msg.retrieve()
+            self.result.append(copy.deepcopy(data[0]))
             if self.check_done():
-                data = msg.retrieve()
-                #print(data[0])
-                #print(self.result)
-                self.result.append(copy.deepcopy(data[0]))
-                #print(self.result)
                 self._cur_state = "SEND"
             else:
                 self._cur_state = "REACHED"
@@ -116,12 +113,9 @@ class Agent10(BehaviorModelExecutor):
         if port == "exin":
             self._cur_state = "SEND"
         elif port == "received":
+            data = msg.retrieve()
+            self.result.append(copy.deepcopy(data[0]))
             if self.check_done():
-                data = msg.retrieve()
-                #print(data[0])
-                #print(self.result)
-                self.result.append(copy.deepcopy(data[0]))
-                #print(self.result)
                 self._cur_state = "SEND"
             else:
                 self._cur_state = "REACHED"
@@ -194,12 +188,9 @@ class Agent20(BehaviorModelExecutor):
         if port == "exin":
             self._cur_state = "SEND"
         elif port == "received":
+            data = msg.retrieve()
+            self.result.append(copy.deepcopy(data[0]))
             if self.check_done():
-                data = msg.retrieve()
-                #print(data[0])
-                #print(self.result)
-                self.result.append(copy.deepcopy(data[0]))
-                #print(self.result)
                 self._cur_state = "SEND"
             else:
                 self._cur_state = "REACHED"
