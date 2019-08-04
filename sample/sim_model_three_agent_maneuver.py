@@ -277,11 +277,11 @@ class Maneuver(BehaviorModelExecutor):
 
 
 v = Agent5(0, 1000, "Peter", "sname")
-x = Agent10(0, 1000, "Cheolsoo", "sname")
-xx = Agent20(0, 1000, "Minsoo", "sname")
+x = Agent10(0, 10000, "Cheolsoo", "sname")
+xx = Agent20(0, 10000, "Minsoo", "sname")
 mv = Maneuver(0, 1000, "Simon", "sname")
-mx = Maneuver(0, 1000, "Simon2", "sname")
-mxx = Maneuver(0, 1000, "Simon3", "sname")
+mx = Maneuver(0, 10000, "Simon2", "sname")
+mxx = Maneuver(0, 10000, "Simon3", "sname")
 
 SystemSimulator().register_engine("sname")
 
